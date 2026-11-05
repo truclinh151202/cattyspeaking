@@ -83,7 +83,7 @@ export default async (req) => {
         signal: AbortSignal.timeout(deadline - Date.now()),
         body: JSON.stringify({ systemInstruction: { parts: [{ text: SYS }] }, contents: [{ role: "user", parts: [{ text: JSON.stringify({ request }) }] }], generationConfig: cfg }),
       });
-      if (!r.ok) { last = "upstream " + r.status; if (r.status === 429) break; continue; }
+      if (!r.ok) {   const info = await r.json().catch(() => ({}));   last = String(info.error?.message || `upstream ${r.status}`)     .replaceAll(key, "[hidden]");   break; }
       const d = await r.json();
       const o = JSON.parse(d.candidates[0].content.parts[0].text);
       if (o.unsuitable) return Response.json({ unsuitable: true, reason: String(o.reason || "Yêu cầu này không phù hợp để tạo bài.").slice(0, 300) });
