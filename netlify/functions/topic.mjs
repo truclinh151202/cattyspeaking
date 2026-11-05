@@ -92,5 +92,5 @@ export default async (req) => {
     } catch (e) { last = String(e && e.message || e); }
   }
   console.log("topic failed:", last);
-  return Response.json({ error: "failed", detail: last.slice(0, 80) }, { status: 502 });
+  return Response.json({ error: "failed", detail: last.slice(0, 500) }, { status: 502 });
 };
