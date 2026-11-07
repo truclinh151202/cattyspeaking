@@ -22,19 +22,16 @@ export default async (req) => {
   if (!key) return Response.json({ error: "no key" }, { status: 503 });
   let b;
   try { b = await req.json(); } catch { return Response.json({ error: "bad json" }, { status: 400 }); }
-  const language = ["vi", "en", "zh-TW"].includes(b.language) ? b.language : "vi";
-  const localizedSYS = SYS + (language === "en" ? "\nWrite good, improve and retry in simple English. suggestion stays in English. Preserve the label codes." : language === "zh-TW" ? "\nWrite good, improve and retry in Traditional Chinese (Taiwan). suggestion stays in English. Preserve the label codes." : "");
   const text = String(b.text || "").trim().slice(0, 300);
   if (!text) return Response.json({ error: "empty" }, { status: 400 });
   const input = { question: String(b.question || "").slice(0, 200), goal: String(b.goal || "").slice(0, 200), sample: String(b.sample || "").slice(0, 200), must_ask_price: !!b.price, text };
-  const model = (process.env.GEMINI_MODEL || "gemini-3.1-flash-lite").trim();
+  const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
   try {
     const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
       method: "POST",
-      signal: AbortSignal.timeout(14000),
       headers: { "content-type": "application/json", "x-goog-api-key": key },
       body: JSON.stringify({
-        systemInstruction: { parts: [{ text: localizedSYS }] },
+        systemInstruction: { parts: [{ text: SYS }] },
         contents: [{ role: "user", parts: [{ text: JSON.stringify(input) }] }],
         generationConfig: { responseMimeType: "application/json", temperature: 0.3 },
       }),

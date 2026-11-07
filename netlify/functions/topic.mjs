@@ -8,21 +8,22 @@ Nếu hợp lệ, trả về DUY NHẤT một JSON:
 {
  "title":"tên bài ngắn bằng tiếng Việt",
  "emoji":"1 emoji",
- "turns":[{"who":"S","en":"...","vi":"...","ipa":"/.../"},{"who":"L","en":"...","vi":"...","ipa":"/.../"}],
- "keywords":[{"en":"...","vi":"...","ipa":"/.../"}],
- "phrases":[{"en":"...","ipa":"/.../","vi":"nghĩa","note":"ví dụ hoặc cách dùng ngắn bằng tiếng Việt"}],
+ "turns":[{"who":"S","en":"...","vi":"..."},{"who":"L","en":"...","vi":"..."}],
+ "keywords":[{"en":"...","vi":"..."}],
+ "phrases":[{"en":"...","vi":"nghĩa","note":"ví dụ hoặc cách dùng ngắn bằng tiếng Việt"}],
  "quiz":[{"type":"mc","q":"câu hỏi tiếng Việt","options":["","",""],"answer":"đúng 1 trong options","explain":"giải thích ngắn tiếng Việt","evidence":"trích NGUYÊN VĂN một phần câu tiếng Anh trong turns"},
          {"type":"gap","q":"câu hỏi tiếng Việt","accept":["7","seven"],"explain":"...","evidence":"trích nguyên văn từ turns chứa đáp án"}],
  "tasks":[{"emoji":"","question":"câu người đối thoại (S) nói, lấy từ turns","goal":"mục tiêu tiếng Việt","sample":"câu trả lời mẫu tiếng Anh của học viên","starter":"câu mẫu có chỗ trống ___","hint":"từ khoá gợi ý","must":[{"any":["cụm từ chấp nhận được","biến thể"],"vi":"ý học viên cần nói, tiếng Việt"}]}],
- "selfcheck":["Mình có thể ... không?","Mình có thể ... không?"]
+ "selfcheck":["Mình có thể ... không?","Mình có thể ... không?"],
+ "glossary":[{"en":"apple","vi":"quả táo","ex":"I like apples."}]
 }
 Quy tắc:
-- Mỗi phần tử turns, keywords và phrases phải có trường ipa: phiên âm IPA rộng giọng General American, đặt giữa /.../, có trọng âm khi phù hợp. Phiên âm đúng toàn bộ trường en tương ứng, không dùng cách viết giả âm tiếng Việt. Không thêm giải thích vào ipa.
 - turns: 8 đến 10 lượt, xen kẽ S (nhân viên/đối tác, nói trước) và L (học viên). Mỗi lượt tối đa 12 từ, từ vựng đơn giản, tự nhiên, kiểu Mỹ. Hội thoại khoảng 45-60 giây. Đưa vào hội thoại càng nhiều ý học viên yêu cầu càng tốt (nếu quá nhiều, ưu tiên ý quan trọng nhất).
 - keywords: 4-5. phrases: 4-5 cụm hữu ích có trong hoặc sát với hội thoại.
-- quiz: BẮT BUỘC ĐÚNG 3 câu hỏi: 2 câu "mc" và 1 câu "gap". Mẫu JSON phía trên chỉ minh họa định dạng, chưa đủ số câu; phải bổ sung thành đúng 3 câu. Mọi đáp án phải có trong turns; evidence phải trích nguyên văn từ turns. Câu gap có accept gồm đáp án bằng số và bằng chữ khi phù hợp. Giá cả, số lượng và lựa chọn phải nhất quán., ít nhất 1 câu "gap" (đáp án ngắn, "accept" gồm cả chữ số và chữ, viết thường). Mọi đáp án PHẢI có thật trong turns; "evidence" phải là đoạn trích nguyên văn từ turns. Giá cả, số lượng, lựa chọn phải nhất quán trong toàn bài.
+- quiz: 3-4 câu, ít nhất 1 câu "gap" (đáp án ngắn, "accept" gồm cả chữ số và chữ, viết thường). Mọi đáp án PHẢI có thật trong turns; "evidence" phải là đoạn trích nguyên văn từ turns. Giá cả, số lượng, lựa chọn phải nhất quán trong toàn bài.
 - tasks: ĐÚNG 5 mục. Mục 1: học viên thử trước. Mục 2, 3, 4: luyện giảm dần hỗ trợ, mỗi mục tập một ý khác nhau trong hội thoại. Mục 5: tình huống mới (đổi món, số lượng hoặc lựa chọn khác với hội thoại, học viên phải tự nói). "question" là câu của S. "sample" phải thực sự hoàn thành "goal". "must": 1-3 nhóm ý bắt buộc; mỗi nhóm liệt kê 2-6 cách nói tiếng Anh chữ thường (không dấu câu) mà học viên có thể dùng.
 - selfcheck: 2 câu tự đánh giá tiếng Việt bắt đầu bằng "Mình có thể", gắn với kỹ năng nói trong bài.
+- glossary: 8-12 TỪ ĐƠN (một từ, không phải cụm) xuất hiện nguyên văn trong turns; "vi" là nghĩa tiếng Việt ngắn; "ex" là ví dụ tiếng Anh rất ngắn.
 - Giải thích và hướng dẫn bằng tiếng Việt dễ hiểu. Không dùng từ khó.`;
 
 const norm = (s) => String(s || "").toLowerCase().replace(/[’‘]/g, "'").replace(/[^a-z0-9' ]/g, " ").replace(/\s+/g, " ").trim();
@@ -60,6 +61,9 @@ function check(L) {
     if (!str(t.question) || !str(t.goal) || !str(t.sample) || !Array.isArray(t.must) || !t.must.length) err("task");
     if (t.must.some((m) => !Array.isArray(m.any) || !m.any.length || !str(m.vi))) err("must");
   });
+  const words = new Set(full.split(" "));
+  L.glossary = (Array.isArray(L.glossary) ? L.glossary : []).filter((g) => g && str(g.en, 30) && !/\s/.test(g.en.trim()) && words.has(norm(g.en)) && str(g.vi, 60));
+  if (L.glossary.length < 4) err("glossary");
   if (!Array.isArray(L.selfcheck) || L.selfcheck.length < 2 || L.selfcheck.some((s) => !str(s, 160))) err("selfcheck");
 }
 
@@ -69,14 +73,12 @@ export default async (req) => {
   if (!key) return Response.json({ error: "no key" }, { status: 503 });
   let b;
   try { b = await req.json(); } catch { return Response.json({ error: "bad json" }, { status: 400 }); }
-  const language = ["vi", "en", "zh-TW"].includes(b.language) ? b.language : "vi";
-  const localizedSYS = SYS + (language === "en" ? "\nLANGUAGE OVERRIDE: Write all learner explanations, title, vi fields, notes, quiz questions and options, goals, hints and selfcheck in English. Keep field names unchanged; turns.en and sample remain English; ipa remains General American IPA." : language === "zh-TW" ? "\nLANGUAGE OVERRIDE: Write all learner explanations, title, vi fields, notes, quiz questions and options, goals, hints and selfcheck in Traditional Chinese (Taiwan). Keep field names unchanged; turns.en and sample remain English; ipa remains General American IPA." : "");
   const request = String(b.request || "").trim().slice(0, 400);
   if (request.length < 5) return Response.json({ error: "empty" }, { status: 400 });
   const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
   const cfg = { responseMimeType: "application/json", temperature: 0.6 };
-  if (model === "gemini-3.1-flash-lite") {   cfg.thinkingConfig = { thinkingLevel: "minimal" }; }
-  const deadline = Date.now() + 55000;
+  if (/flash/.test(model)) cfg.thinkingConfig = { thinkingBudget: 0 };
+  const deadline = Date.now() + 24000;
   let last = "";
   for (let i = 0; i < 2 && deadline - Date.now() > 6000; i++) {
     try {
@@ -84,9 +86,9 @@ export default async (req) => {
         method: "POST",
         headers: { "content-type": "application/json", "x-goog-api-key": key },
         signal: AbortSignal.timeout(deadline - Date.now()),
-        body: JSON.stringify({ systemInstruction: { parts: [{ text: localizedSYS }] }, contents: [{ role: "user", parts: [{ text: JSON.stringify({ request }) }] }], generationConfig: cfg }),
+        body: JSON.stringify({ systemInstruction: { parts: [{ text: SYS }] }, contents: [{ role: "user", parts: [{ text: JSON.stringify({ request }) }] }], generationConfig: cfg }),
       });
-      if (!r.ok) {   const info = await r.json().catch(() => ({}));   last = String(info.error?.message || `upstream ${r.status}`)     .replaceAll(key, "[hidden]");   break; }
+      if (!r.ok) { last = "upstream " + r.status; if (r.status === 429) break; continue; }
       const d = await r.json();
       const o = JSON.parse(d.candidates[0].content.parts[0].text);
       if (o.unsuitable) return Response.json({ unsuitable: true, reason: String(o.reason || "Yêu cầu này không phù hợp để tạo bài.").slice(0, 300) });
@@ -95,5 +97,5 @@ export default async (req) => {
     } catch (e) { last = String(e && e.message || e); }
   }
   console.log("topic failed:", last);
-  return Response.json({ error: "failed", detail: last.slice(0, 500) }, { status: 502 });
+  return Response.json({ error: "failed", detail: last.slice(0, 80) }, { status: 502 });
 };
