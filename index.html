@@ -30,6 +30,9 @@ nav button{background:none;color:var(--mut);flex:1;max-width:150px;padding:6px 2
 label.o{display:block;padding:10px;border:1px solid var(--bd);border-radius:12px;margin:6px 0}
 .tail{transform-box:view-box;transform-origin:168px 196px;animation:wag 1.4s ease-in-out infinite}@keyframes wag{0%,100%{transform:rotate(-10deg)}50%{transform:rotate(12deg)}}.breath{transform-box:fill-box;transform-origin:50% 100%;animation:br 3s ease-in-out infinite}@keyframes br{50%{transform:scaleY(1.025)}}.eyes{transform-box:fill-box;transform-origin:center;animation:bl 5s infinite}@keyframes bl{0%,94%,100%{transform:scaleY(1)}97%{transform:scaleY(.1)}}.hop{animation:hop .5s}@keyframes hop{40%{transform:translateY(-14px)}}.catg{cursor:pointer}@media(prefers-reduced-motion:reduce){.tail,.breath,.eyes{animation:none}}
 .ipa{font-family:"Segoe UI","DejaVu Sans",sans-serif;color:var(--mut);font-size:.94em;line-height:1.6;overflow-wrap:anywhere}
+
+body{background:#fbf8f3}main{max-width:1040px}.card{box-shadow:0 4px 22px #60462606}.language-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:0 0 18px}.brand{font-weight:800;color:var(--pri)}select{font:inherit;padding:7px;border-radius:9px;border:1px solid var(--bd);background:var(--card);color:var(--tx)}.pet-art{position:relative;aspect-ratio:1;margin:auto;max-width:100%;cursor:pointer}.pet-sprite{width:100%;height:100%;background-image:url('assets/catty-sprites.png');background-size:200% 200%;background-repeat:no-repeat;animation:catFloat 3s ease-in-out infinite}.pet-art.happy{animation:catHop .65s 3}.pet-art.eat{animation:catNibble .7s 4}.pet-hat,.pet-face,.pet-neck,.pet-bowl{position:absolute;pointer-events:none;font-size:44px;left:50%;transform:translateX(-50%)}.pet-hat{top:2%}.pet-face{top:33%;font-size:50px}.pet-neck{top:53%;font-size:32px}.pet-bowl{bottom:0;left:68%}.cozy-room{position:relative;height:310px;overflow:hidden;border-radius:20px;background:var(--wall);border:5px solid #e5d1ba}.room-floor{position:absolute;bottom:0;height:30%;width:100%;background:repeating-linear-gradient(0deg,#d6ad83 0px,#d6ad83 34px,#c79c71 35px,#c79c71 36px)}.room-window{position:absolute;top:24px;right:28px;background:#d8eff3;border:8px solid #fff9ef;border-radius:40px 40px 6px 6px;width:90px;height:95px;text-align:center;padding:12px;font-size:35px}.room-cat{position:absolute;bottom:5px;left:50%;transform:translateX(-50%)}.room-item{position:absolute;font-size:45px;bottom:9px;left:calc(10% + var(--i)*9%)}.item-window{top:24px;bottom:auto;left:30px}.item-plant{left:auto;right:10px;bottom:38px}.item-rug{left:32%;font-size:95px;bottom:-25px}.lang-note{background:var(--pri2);padding:8px 12px;border-radius:10px;font-size:14px}.demo{font-size:13px}@keyframes catFloat{50%{transform:translateY(-4px)}}@keyframes catHop{40%{transform:translateY(-18px)}}@keyframes catNibble{50%{transform:rotate(3deg)}}@media(prefers-reduced-motion:reduce){.pet-sprite,.pet-art.happy,.pet-art.eat{animation:none}}@media(prefers-color-scheme:dark){body{background:var(--bg)}}
+.lesson-companion{display:flex;align-items:center;gap:16px}.lesson-companion .pet-art{margin:0;flex:none}.lesson-companion p{margin:2px 0}nav{z-index:5}
 </style></head><body>
 <div class="demo" id="demo">Demo mode — AI not connected · Chế độ demo: chưa kết nối AI</div>
 <div id="toast"></div><main id="app"></main>
@@ -37,11 +40,11 @@ label.o{display:block;padding:10px;border:1px solid var(--bd);border-radius:12px
 <script>
 "use strict";
 const K='cattyspeaking.v1',today=()=>new Date().toISOString().slice(0,10);
-const def=()=>({pet:'Mèo Con',coins:5,claimed:[],done:[],today:{d:'',s:[]},quiz:null,support:[],hist:[],last:{},tries:{},cant:false,saveHist:true,owned:[],worn:[],own2:[],custom:[],cur:'fruit',prog:{},cd:{d:'',ids:[]},wear:{},room:[],wall:'#fdf0d5',fedAt:0,assess:{}});
+const def=()=>({pet:'Mèo Con',coins:5,claimed:[],done:[],today:{d:'',s:[]},quiz:null,support:[],hist:[],last:{},tries:{},cant:false,saveHist:true,owned:[],worn:[],own2:[],custom:[],cur:'fruit',prog:{},cd:{d:'',ids:[]},wear:{},room:[],wall:'#fdf0d5',fedAt:0,assess:{},food:0,foodClaims:[],lang:'vi'});
 function load(){try{const o=JSON.parse(localStorage.getItem(K));if(o)return Object.assign(def(),o)}catch(e){}return def()}
 let S=load();function save(){try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}}
 const $=s=>document.querySelector(s),esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-function toast(t){const e=$('#toast');e.textContent=t;e.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>e.style.display='none',1800)}
+function toast(t){t=tr(t);const e=$('#toast');e.textContent=t;e.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>e.style.display='none',1800)}
 function earn(key,n){if(key.indexOf('daily:')!=0&&LID!=='fruit'){if(S.cd.d!==today())S.cd={d:today(),ids:[]};if(!S.cd.ids.includes(LID)){if(S.cd.ids.length>=2)return false;S.cd.ids.push(LID)}key=LID+'|'+key}if(S.claimed.includes(key))return false;S.claimed.push(key);S.coins+=n;save();toast('+'+n+' xu 🪙');return true}
 const STEPS=['A','B','C','D','E','F','G'],SN=['Thử trước','Nghe mẫu','Cụm từ','Nghe hiểu','Nói','Tình huống mới','Tự đánh giá'];
 function markDone(s){if(!S.done.includes(s))S.done.push(s);if(S.today.d!==today())S.today={d:today(),s:[]};if(!S.today.s.includes(s))S.today.s.push(s);earn('step:'+s,5);if('ABCDEF'.split('').every(x=>S.today.s.includes(x)))earn('daily:'+today(),10);save()}
@@ -55,6 +58,7 @@ e2:{lvl:2,img:'🍌',q:'Hi! What would you like?',goal:'Vòng 2 — Mua 3 quả 
 e3:{lvl:3,img:'🍎🍎',q:'Hello! Can I help you?',goal:'Vòng 3 — Chỉ có ảnh: hãy mua số táo trong ảnh (2 quả).',hint:'Bắt đầu bằng: I’d like …',tk:{item:/apples?\b/,n:'apples',qty:2,sample:'I’d like two apples, please.'}},
 f:{lvl:3,img:'🍊🍊🍊',q:'Hi! What would you like?',goal:'Tình huống mới — Mua 3 quả cam và hỏi giá.',hint:'Bắt đầu bằng: I’d like … rồi hỏi: How much …?',tk:{item:/oranges?\b/,n:'oranges',qty:3,price:1,sample:'I’d like three oranges, please. How much are they?'}}};
 let Q=[{t:'mc',q:'Người mua mua mấy quả táo?',o:['1','2','3'],a:'2',x:'Người mua nói “two apples”.'},{t:'gap',q:'Điền số: “I’d like ___ bananas.”',a:['3','three'],x:'Người mua nói “three bananas”.'},{t:'gap',q:'Tổng cộng mấy đô-la? (gõ số)',a:['7','seven'],x:'Người bán nói “That’s seven dollars”.'},{t:'mc',q:'“Anything else?” nghĩa là gì?',o:['Bạn tên gì?','Bạn cần gì nữa không?','Bao nhiêu tiền?'],a:'Bạn cần gì nữa không?',x:'Người bán dùng câu này sau khi bạn chọn món.'}];
+let petMood='wave';
 const FOOD=[['🍎','Táo',5],['🐟','Cá',8]],ACC=[['🎩','Mũ',20],['🎀','Nơ',15],['🕶️','Kính',25]];
 /* ---- audio ---- */
 const TTS='speechSynthesis' in window;let voice=null,rate=.85;
@@ -62,10 +66,10 @@ function pickV(){try{const v=speechSynthesis.getVoices();voice=v.find(x=>x.lang=
 if(TTS){pickV();speechSynthesis.onvoiceschanged=pickV}
 function say(t,done){if(!TTS){toast('Trình duyệt không hỗ trợ giọng đọc');done&&done();return}speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='en-US';if(voice)u.voice=voice;u.rate=rate;u.onend=()=>done&&done();u.onerror=()=>done&&done();speechSynthesis.speak(u)}
 const pl={on:false,i:0,id:0};
-function hi(i){pl.i=i;document.querySelectorAll('.turn').forEach((e,k)=>e.classList.toggle('cur',k===i))}
+function hi(i){document.querySelectorAll('.pet-sprite').forEach(e=>e.style.backgroundPosition=pl.on?'0% 100%':'0% 0%');pl.i=i;document.querySelectorAll('.turn').forEach((e,k)=>e.classList.toggle('cur',k===i))}
 function updPB(){const b=$('#pb');if(b)b.textContent=pl.on?'⏸ Tạm dừng':'▶ Nghe cả đoạn'}
-function playFrom(i){pl.on=true;const id=++pl.id;hi(i);updPB();say(T[i][1],()=>{if(id!==pl.id||!pl.on)return;setTimeout(()=>{if(id!==pl.id||!pl.on)return;if(i+1<T.length)playFrom(i+1);else{pl.on=false;pl.i=0;updPB()}},700)})}
-function stopPl(){pl.on=false;pl.id++;if(TTS)speechSynthesis.cancel();updPB()}
+function playFrom(i){petMood='listen';pl.on=true;const id=++pl.id;hi(i);updPB();say(T[i][1],()=>{if(id!==pl.id||!pl.on)return;setTimeout(()=>{if(id!==pl.id||!pl.on)return;if(i+1<T.length)playFrom(i+1);else{pl.on=false;petMood='happy';pl.i=0;document.querySelectorAll('.pet-sprite').forEach(e=>e.style.backgroundPosition='100% 100%');updPB()}},700)})}
+function stopPl(){petMood='idle';pl.on=false;pl.id++;if(TTS)speechSynthesis.cancel();updPB()}
 /* ---- recording ---- */
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 const rec={},ST={},TX={},ASRT={},ED={},H={},fb={},QA={},QR={};let mr=null,chunks=[],rc=null,view='home',step=0,msgs={};
@@ -92,8 +96,8 @@ function evalAns(raw,tk){const t=raw.toLowerCase().replace(/[’‘]/g,"'").repl
  if(!item)imp='Câu trả lời chưa nói rõ bạn muốn mua “'+tk.n+'”.';else if(!qty)imp='Hãy nói thêm số lượng bạn muốn mua.';else if(tk.price&&!pr)imp='Bạn chưa hỏi giá. Hãy thêm: “How much are they?”';else if(!pol)imp='Câu của bạn đã đủ ý. Bạn có thể nói lịch sự hơn bằng “I’d like …, please.”';else imp='Rất tốt. Lần sau thử nói chậm và rõ từng cụm.';
  return{label,good,imp,sug:tk.sample,retry:label==='done'?'Thử lại không nhìn mẫu để nói trôi chảy hơn.':'Hãy nói lại một lần nữa với câu gợi ý.'}}
 let AI=false;
-fetch('/api/feedback').then(r=>r.json()).then(j=>{if(j&&j.ai===true){AI=true;const d=$('#demo');d.textContent='AI connected · Đã kết nối AI (chỉ gửi văn bản câu trả lời, không gửi bản ghi âm)';d.style.background='#d1e7dd';d.style.color='#0f5132'}}).catch(()=>{});
-async function aiFb(k,c,raw){if(!AI)return;try{const ctl=new AbortController();setTimeout(()=>ctl.abort(),15000);const r=await fetch('/api/feedback',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:raw,question:c.q,goal:c.goal,sample:c.tk.sample,price:!!c.tk.price}),signal:ctl.signal});if(!r.ok)throw 0;const j=await r.json();if(!LB[j.label]||!fb[k]||fb[k].text!==raw)return;fb[k]=Object.assign(fb[k],{ai:1,label:j.label,good:j.good,imp:j.improve,sug:j.suggestion,retry:j.retry});S.last[k]=j.label;save();render()}catch(e){toast(`Không kết nối được AI, đang dùng kiểm tra theo câu trả lời`)}}
+fetch('/api/feedback').then(r=>r.json()).then(j=>{if(j&&j.ai===true){AI=true;const d=$('#demo');d.textContent='AI connected · Đã kết nối AI (chỉ gửi văn bản câu trả lời, không gửi bản ghi âm)';d.style.background='#d1e7dd';d.style.color='#0f5132';localize()}}).catch(()=>{});
+async function aiFb(k,c,raw){if(!AI)return;try{const ctl=new AbortController();setTimeout(()=>ctl.abort(),15000);const r=await fetch('/api/feedback',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:raw,question:c.q,goal:c.goal,sample:c.tk.sample,price:!!c.tk.price,language:S.lang||'vi'}),signal:ctl.signal});if(!r.ok)throw 0;const j=await r.json();if(!LB[j.label]||!fb[k]||fb[k].text!==raw)return;fb[k]=Object.assign(fb[k],{ai:1,label:j.label,good:j.good,imp:j.improve,sug:j.suggestion,retry:j.retry});S.last[k]=j.label;save();render()}catch(e){toast(`Không kết nối được AI, đang dùng kiểm tra theo câu trả lời`)}}
 let LID='fruit',TITLE='Mua trái cây',EMO='🍎',TOP='',BUSY=false,SC=['Mình có thể nói món và số lượng mà không cần câu mẫu không?','Mình có thể hỏi giá mà không nhìn đáp án không?'];
 const SAMPLE={T,KW,PH,Q,R,title:TITLE,emo:EMO,SC},PK=['done','tries','last','quiz','cant','assess'];
 function setL(L,id){T=L.T;KW=L.KW;PH=L.PH;Q=L.Q;R=L.R;TITLE=L.title;EMO=L.emo;SC=L.SC;LID=id;S.cur=id}
@@ -111,9 +115,9 @@ async function genLesson(){const v=(TOP||'').trim();
  if(v.length<8){msgs.topic='Hãy mô tả tình huống kỹ hơn một chút.';render();return}
  if(S.custom.length>=8){msgs.topic='Bạn đã có 8 bài riêng. Hãy xoá bớt một bài.';render();return}
  BUSY=true;msgs.topic='Đang tạo bài… thường mất 10–40 giây.';render();
- try{const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),55000);const r=await fetch('/api/topic',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({request:v}),signal:ctl.signal});clearTimeout(to);const j=await r.json().catch(()=>({}));
+ try{const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),55000);const r=await fetch('/api/topic',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({request:v,language:S.lang||'vi'}),signal:ctl.signal});clearTimeout(to);const j=await r.json().catch(()=>({}));
   if(j.unsuitable){msgs.topic=String(j.reason||'Yêu cầu này không phù hợp để tạo bài.')}
-  else{if(!r.ok||!j.lesson)throw 0;const L=normLesson(j.lesson);if(!L.R.a||!L.R.f||L.T.length<4||!L.Q.length||L.SC.length<2||!L.KW.length||!L.PH.length)throw 0;L.id='c'+Date.now();S.custom.push(L);save();useLesson(L.id);TOP='';msgs.topic='';view='lesson'}}
+  else{if(!r.ok||!j.lesson)throw 0;const L=normLesson(j.lesson);if(!L.R.a||!L.R.f||L.T.length<4||!L.Q.length||L.SC.length<2||!L.KW.length||!L.PH.length)throw 0;L.language=S.lang||'vi';L.id='c'+Date.now();S.custom.push(L);save();useLesson(L.id);TOP='';msgs.topic='';view='lesson'}}
  catch(e){msgs.topic='Không tạo được bài lúc này (AI bận hoặc nội dung chưa đạt kiểm tra). Hãy thử lại hoặc mô tả khác đi. Hệ thống không tự bịa bài thay thế.'}
  BUSY=false;render()}
 (function(){const L=S.cur!=='fruit'?S.custom.find(l=>l.id===S.cur):null;if(L)setL(L,L.id);else S.cur='fruit'})();
@@ -125,16 +129,20 @@ function task(k){const c=R[k];let sup='';if(c.lvl==1)sup=`<div class=hint>Mẫu:
 const ACS={hat:{s:'head',n:'Mũ cao',e:'🎩',p:20,v:`<ellipse cx='120' cy='54' rx='40' ry='8' fill='#4a3b63'/><rect x='98' y='18' width='44' height='36' rx='4' fill='#4a3b63'/><rect x='98' y='40' width='44' height='7' fill='#e0457b'/>`},crown:{s:'head',n:'Vương miện',e:'👑',p:40,v:`<path d='M84 58 L88 24 L104 42 L120 18 L136 42 L152 24 L156 58 Z' fill='#f5c518' stroke='#d99a00' stroke-width='2'/>`},glasses:{s:'face',n:'Kính tròn',e:'👓',p:20,v:`<g fill='rgba(180,220,255,.35)' stroke='#333' stroke-width='3'><circle cx='102' cy='100' r='15'/><circle cx='138' cy='100' r='15'/><path d='M117 100 h6'/></g>`},shades:{s:'face',n:'Kính râm',e:'🕶️',p:25,v:`<g fill='#222'><rect x='85' y='90' width='32' height='18' rx='6'/><rect x='123' y='90' width='32' height='18' rx='6'/><rect x='114' y='96' width='12' height='4'/></g>`},bow:{s:'neck',n:'Nơ',e:'🎀',p:15,v:`<path d='M120 150 L96 138 L96 162 Z M120 150 L144 138 L144 162 Z' fill='#e0457b'/><circle cx='120' cy='150' r='6' fill='#b82d5f'/>`},scarf:{s:'neck',n:'Khăn len',e:'🧣',p:25,v:`<path d='M78 142 Q120 168 162 142 L162 158 Q120 184 78 158 Z' fill='#2aa7a0'/><rect x='138' y='156' width='16' height='34' rx='4' fill='#2aa7a0'/>`},collar:{s:'neck',n:'Vòng cổ chuông',e:'🔔',p:15,v:`<path d='M78 142 Q120 168 162 142' stroke='#c0392b' stroke-width='9' fill='none'/><circle cx='120' cy='164' r='8' fill='#f5c518' stroke='#d99a00'/>`}};
 const RM={bed:['Ổ nằm','🛏️',30],bowl:['Bát ăn','🥣',10],ball:['Cuộn len','🧶',10],post:['Cột cào móng','🪵',25],plant:['Chậu cây','🪴',15],rug:['Thảm','🟥',20],window:['Cửa sổ','🪟',15]},SL={head:'đầu',face:'mặt',neck:'cổ'};
 function catInner(){const w=S.wear||{},g=k=>w[k]&&ACS[w[k]]?ACS[w[k]].v:'';return `<g class='catg'><g class='breath'><g class='tail'><path d='M168 196 C230 198 238 140 214 112' stroke='#f2b84b' stroke-width='20' fill='none' stroke-linecap='round'/><path d='M226 172 l12 -5 M230 146 l12 -2 M219 123 l11 5' stroke='#e08a2e' stroke-width='5' stroke-linecap='round'/></g><ellipse cx='120' cy='172' rx='58' ry='52' fill='#f6c25b'/><ellipse cx='120' cy='186' rx='32' ry='32' fill='#fde7b0'/><ellipse cx='90' cy='216' rx='19' ry='9' fill='#f6c25b'/><ellipse cx='150' cy='216' rx='19' ry='9' fill='#f6c25b'/><path d='M70 170 l12 3 M72 186 l12 1 M170 170 l-12 3 M168 186 l-12 1' stroke='#e08a2e' stroke-width='5' stroke-linecap='round'/><circle cx='120' cy='100' r='48' fill='#f6c25b'/><path d='M80 72 L76 30 L110 54 Z M160 72 L164 30 L130 54 Z' fill='#f6c25b'/><path d='M84 66 L83 42 L102 56 Z M156 66 L157 42 L138 56 Z' fill='#f4a9a0'/><path d='M112 56 v12 M120 54 v14 M128 56 v12' stroke='#e08a2e' stroke-width='4' stroke-linecap='round'/><g class='eyes'><ellipse cx='102' cy='100' rx='5.5' ry='8' fill='#2d2a32'/><ellipse cx='138' cy='100' rx='5.5' ry='8' fill='#2d2a32'/><circle cx='104' cy='97' r='2' fill='#fff'/><circle cx='140' cy='97' r='2' fill='#fff'/></g><ellipse cx='90' cy='118' rx='8' ry='5' fill='#f4a9a0' opacity='.6'/><ellipse cx='150' cy='118' rx='8' ry='5' fill='#f4a9a0' opacity='.6'/><path d='M114 112 h12 l-6 7 Z' fill='#e58b8b'/><path d='M120 119 q-6 9 -13 3 M120 119 q6 9 13 3' stroke='#8a5a2b' stroke-width='2.5' fill='none' stroke-linecap='round'/><path d='M80 112 l-26 -4 M80 118 l-26 4 M160 112 l26 -4 M160 118 l26 4' stroke='#8a5a2b' stroke-width='1.5' stroke-linecap='round'/>${g('neck')}${g('face')}${g('head')}</g></g>`}
-function pet(sz){return `<svg viewBox='0 0 240 230' style='display:block;margin:auto;width:${sz||190}px;max-width:100%' role='img' aria-label='Mèo vàng' data-a='meow'>${catInner()}</svg>`}
-function roomSVG(){const R=S.room||[],h=i=>R.includes(i);return `<svg viewBox='0 0 360 230' style='width:100%;display:block;border-radius:14px'><rect width='360' height='230' fill='${S.wall||'#fdf0d5'}'/><rect y='172' width='360' height='58' fill='#d9b88f'/><rect y='168' width='360' height='6' fill='#b88f63'/>${h('window')?`<rect x='232' y='22' width='76' height='66' rx='4' fill='#bfe3f7' stroke='#fff' stroke-width='5'/><path d='M270 22 v66 M232 55 h76' stroke='#fff' stroke-width='4'/>`:''}${h('rug')?`<ellipse cx='195' cy='208' rx='100' ry='14' fill='#e07a8f'/>`:''}${h('bed')?`<ellipse cx='62' cy='206' rx='48' ry='16' fill='#8d6e4e'/><ellipse cx='62' cy='200' rx='38' ry='10' fill='#f3a6b8'/>`:''}${h('plant')?`<path d='M322 170 h28 l-4 28 h-20 Z' fill='#c0663a'/><circle cx='336' cy='156' r='14' fill='#4caf6a'/><circle cx='324' cy='164' r='10' fill='#3f9a5b'/><circle cx='348' cy='164' r='10' fill='#3f9a5b'/>`:''}${h('post')?`<rect x='288' y='120' width='14' height='80' fill='#e6c590'/><rect x='276' y='196' width='38' height='8' rx='3' fill='#8d6e4e'/><path d='M288 132 h14 M288 148 h14 M288 164 h14 M288 180 h14' stroke='#b8975f' stroke-width='2'/>`:''}<svg x='125' y='76' width='150' height='144' viewBox='0 0 240 230' data-a='meow'>${catInner()}</svg>${h('bowl')?`<path d='M112 212 h34 l-5 -12 h-24 Z' fill='#e0574f'/><ellipse cx='129' cy='200' rx='12' ry='3' fill='#c98b5a'/>`:''}${h('ball')?`<circle cx='236' cy='212' r='9' fill='#7e6bd6'/>`:''}</svg>`}
+function legacyPet(sz){return `<svg viewBox='0 0 240 230' style='display:block;margin:auto;width:${sz||190}px;max-width:100%' role='img' aria-label='Mèo vàng' data-a='meow'>${catInner()}</svg>`}
+function legacyRoomSVG(){const R=S.room||[],h=i=>R.includes(i);return `<svg viewBox='0 0 360 230' style='width:100%;display:block;border-radius:14px'><rect width='360' height='230' fill='${S.wall||'#fdf0d5'}'/><rect y='172' width='360' height='58' fill='#d9b88f'/><rect y='168' width='360' height='6' fill='#b88f63'/>${h('window')?`<rect x='232' y='22' width='76' height='66' rx='4' fill='#bfe3f7' stroke='#fff' stroke-width='5'/><path d='M270 22 v66 M232 55 h76' stroke='#fff' stroke-width='4'/>`:''}${h('rug')?`<ellipse cx='195' cy='208' rx='100' ry='14' fill='#e07a8f'/>`:''}${h('bed')?`<ellipse cx='62' cy='206' rx='48' ry='16' fill='#8d6e4e'/><ellipse cx='62' cy='200' rx='38' ry='10' fill='#f3a6b8'/>`:''}${h('plant')?`<path d='M322 170 h28 l-4 28 h-20 Z' fill='#c0663a'/><circle cx='336' cy='156' r='14' fill='#4caf6a'/><circle cx='324' cy='164' r='10' fill='#3f9a5b'/><circle cx='348' cy='164' r='10' fill='#3f9a5b'/>`:''}${h('post')?`<rect x='288' y='120' width='14' height='80' fill='#e6c590'/><rect x='276' y='196' width='38' height='8' rx='3' fill='#8d6e4e'/><path d='M288 132 h14 M288 148 h14 M288 164 h14 M288 180 h14' stroke='#b8975f' stroke-width='2'/>`:''}<svg x='125' y='76' width='150' height='144' viewBox='0 0 240 230' data-a='meow'>${catInner()}</svg>${h('bowl')?`<path d='M112 212 h34 l-5 -12 h-24 Z' fill='#e0574f'/><ellipse cx='129' cy='200' rx='12' ry='3' fill='#c98b5a'/>`:''}${h('ball')?`<circle cx='236' cy='212' r='9' fill='#7e6bd6'/>`:''}</svg>`}
+function petReward(k){const id=LID+'|'+k;S.foodClaims=S.foodClaims||[];if(S.foodClaims.includes(id))return;S.foodClaims.push(id);S.food=(S.food||0)+1;petMood='happy';save();toast('Hoàn thành nhiệm vụ! +1 phần thức ăn 🥣');}
+function pet(sz){const state=pl.on?'listen':petMood,xy={idle:'0% 0%',wave:'100% 0%',listen:'0% 100%',happy:'100% 100%',eat:'0% 0%'};
+return `<div class="pet-art ${state}" style="width:${sz||220}px" role="img" aria-label="Catty, your learning companion" data-a=meow><div class=pet-sprite style="background-position:${xy[state]||xy.idle}"></div>${S.wear.head?`<span class=pet-hat>${ACS[S.wear.head]?.e||''}</span>`:''}${S.wear.face?`<span class=pet-face>${ACS[S.wear.face]?.e||''}</span>`:''}${S.wear.neck?`<span class=pet-neck>${ACS[S.wear.neck]?.e||''}</span>`:''}${state==='eat'?'<span class=pet-bowl>🥣</span>':''}</div>`}
+function roomSVG(){const items={bed:'🛏️',bowl:'🥣',ball:'🧶',post:'🪵',plant:'🪴',rug:'🟪',window:'🪟'};return `<div class=cozy-room style="--wall:${esc(S.wall||'#fdf0d5')}"><div class=room-window>☀️</div><div class=room-floor></div>${(S.room||[]).map((k,i)=>`<span class="room-item item-${k}" style="--i:${i}">${items[k]||''}</span>`).join('')}<div class=room-cat>${pet(245)}</div></div>`}
 function vPet2(){const fed=Date.now()-S.fedAt<864e5,wn=['#fdf0d5','#dff3e4','#dcecfb','#fbe3e8'],ks=Object.keys(ACS),own=ks.filter(k=>S.own2.includes(k)),shop=ks.filter(k=>!S.own2.includes(k));
-return `<h1>🏠 Nhà của ${esc(S.pet)}</h1><div class=card>${roomSVG()}<p class=mut style='text-align:center'>Chạm vào mèo để vuốt ve. ${fed?'Mèo đang vui 😸':'Mèo hơi đói, nhưng không sao đâu 🙂'} · 🪙 ${S.coins}</p><p><input type=text id=pn value='${esc(S.pet)}' maxlength=20 data-a=pname> <span class=mut>Đặt tên cho mèo</span></p></div><div class=card><h3>Màu tường</h3><div class=row>${wn.map(c=>`<button data-a=wall data-c='${c}' aria-label='Màu tường' style='background:${c};border:3px solid ${(S.wall||wn[0])==c?'var(--pri)':'var(--bd)'};width:56px'></button>`).join('')}</div></div><div class=card><h3>Thức ăn</h3><div class=row>${FOOD.map((f,i)=>`<button class=b2 data-a=feed data-i=${i}>${f[0]} ${f[1]} · ${f[2]}🪙</button>`).join('')}</div></div><div class=card><h3>👚 Tủ đồ của mèo</h3>${own.length?own.map(k=>`<p>${ACS[k].e} ${ACS[k].n} <span class=mut>(${SL[ACS[k].s]})</span> <button class=b2 data-a=wearA data-k=${k}>${S.wear[ACS[k].s]==k?'Cởi ra':'Mặc'}</button></p>`).join(''):`<p class=mut>Tủ đồ còn trống. Hãy mua phụ kiện ở cửa hàng bên dưới.</p>`}</div><div class=card><h3>🛍️ Cửa hàng phụ kiện</h3>${shop.length?shop.map(k=>`<p>${ACS[k].e} ${ACS[k].n} <span class=mut>(${SL[ACS[k].s]})</span> <button data-a=buyA data-k=${k}>Mua · ${ACS[k].p}🪙</button></p>`).join(''):`<p class=mut>Bạn đã có tất cả phụ kiện!</p>`}</div><div class=card><h3>🪑 Đồ trong nhà</h3>${Object.keys(RM).map(k=>`<p>${RM[k][1]} ${RM[k][0]} ${S.own2.includes('r:'+k)?`<button class=b2 data-a=placeR data-k=${k}>${S.room.includes(k)?'Cất đi':'Đặt vào nhà'}</button>`:`<button data-a=buyR data-k=${k}>Mua · ${RM[k][2]}🪙</button>`}</p>`).join('')}</div>`}
+return `<h1>🏠 Nhà của ${esc(S.pet)}</h1><div class=card>${roomSVG()}<p class=mut style='text-align:center'>Chạm vào mèo để vuốt ve. ${fed?'Mèo đang vui 😸':'Mèo luôn sẵn sàng học cùng bạn 😸'} · 🪙 ${S.coins}</p><p><input type=text id=pn value='${esc(S.pet)}' maxlength=20 data-a=pname> <span class=mut>Đặt tên cho mèo</span></p></div><div class=card><h3>Màu tường</h3><div class=row>${wn.map(c=>`<button data-a=wall data-c='${c}' aria-label='Màu tường' style='background:${c};border:3px solid ${(S.wall||wn[0])==c?'var(--pri)':'var(--bd)'};width:56px'></button>`).join('')}</div></div><div class=card><h3>Thức ăn</h3><p>🥣 ${S.food||0} <span>phần thưởng thức ăn</span></p><button data-a=feedReward ${!S.food?'disabled':''}>Cho mèo ăn phần thưởng</button><p class=mut>Hoàn thành nhiệm vụ nói để nhận thức ăn. Mỗi nhiệm vụ nhận một lần.</p><div class=row>${FOOD.map((f,i)=>`<button class=b2 data-a=feed data-i=${i}>${f[0]} ${f[1]} · ${f[2]}🪙</button>`).join('')}</div></div><div class=card><h3>👚 Tủ đồ của mèo</h3>${own.length?own.map(k=>`<p>${ACS[k].e} ${ACS[k].n} <span class=mut>(${SL[ACS[k].s]})</span> <button class=b2 data-a=wearA data-k=${k}>${S.wear[ACS[k].s]==k?'Cởi ra':'Mặc'}</button></p>`).join(''):`<p class=mut>Tủ đồ còn trống. Hãy mua phụ kiện ở cửa hàng bên dưới.</p>`}</div><div class=card><h3>🛍️ Cửa hàng phụ kiện</h3>${shop.length?shop.map(k=>`<p>${ACS[k].e} ${ACS[k].n} <span class=mut>(${SL[ACS[k].s]})</span> <button data-a=buyA data-k=${k}>Mua · ${ACS[k].p}🪙</button></p>`).join(''):`<p class=mut>Bạn đã có tất cả phụ kiện!</p>`}</div><div class=card><h3>🪑 Đồ trong nhà</h3>${Object.keys(RM).map(k=>`<p>${RM[k][1]} ${RM[k][0]} ${S.own2.includes('r:'+k)?`<button class=b2 data-a=placeR data-k=${k}>${S.room.includes(k)?'Cất đi':'Đặt vào nhà'}</button>`:`<button data-a=buyR data-k=${k}>Mua · ${RM[k][2]}🪙</button>`}</p>`).join('')}</div>`}
 function vHome(){const n=S.today.d===today()?S.today.s.filter(x=>x!=='G').length:0;
- return `<h1>🐱 CattySpeaking</h1><div class=card><h2>Bài hiện tại: ${esc(TITLE)} ${EMO}</h2><p class=mut>15–20 phút · Nghe mẫu → nói có hỗ trợ → tự nói.</p><button data-a=go data-v=lesson>${S.done.length?'Tiếp tục bài học':'Bắt đầu'}</button></div>
- <div class=grid><div class=card><h3>Mục tiêu hôm nay</h3><p>${n}/6 bước hoàn thành ${n>=6?'🎉':''}</p><p class=mut>Hoàn thành 6 bước (A–F) để nhận xu thưởng hằng ngày. Xu chỉ là phần thưởng vui, không đo trình độ nói.</p></div><div class=card>${pet()}<p style="text-align:center"><b>${esc(S.pet)}</b> · 🪙 ${S.coins}</p></div></div>
+ return `<h1>🐱 CattySpeaking</h1><p class=lang-note>${tr('Chọn ngôn ngữ trước khi tạo bài mới. Bài đã lưu giữ ngôn ngữ lúc tạo.')}</p><div class=card><h2>Bài hiện tại: ${esc(TITLE)} ${EMO}</h2><p class=mut>15–20 phút · Nghe mẫu → nói có hỗ trợ → tự nói.</p><button data-a=go data-v=lesson>${S.done.length?'Tiếp tục bài học':'Bắt đầu'}</button></div>
+ <div class=grid><div class=card><h3>Mục tiêu hôm nay</h3><p>${n}/6 bước hoàn thành ${n>=6?'🎉':''}</p><p class=mut>Hoàn thành 6 bước (A–F) để nhận xu thưởng hằng ngày. Xu chỉ là phần thưởng vui, không đo trình độ nói.</p></div><div class=card>${pet()}<p style="text-align:center"><b>${esc(S.pet)}</b> · 🪙 ${S.coins} · 🥣 ${S.food||0}</p></div></div>
  <div class=card><h3>✨ Tạo hội thoại của riêng bạn</h3><p class=mut>Mô tả tình huống bạn muốn luyện, ví dụ: “Tôi muốn mua trà sữa: hỏi món bán chạy nhất, chọn đường và đá, mang đi hay uống tại đây, thanh toán bằng gì.”</p><textarea id=topic rows=3 maxlength=400 placeholder='Bạn muốn luyện nói trong tình huống nào?' style='width:100%;font:inherit;padding:12px;border-radius:12px;border:1px solid var(--bd);background:var(--bg);color:var(--tx)'>${esc(TOP)}</textarea><div class=row><button data-a=topic ${BUSY?'disabled':''}>${BUSY?'Đang tạo…':'Tạo bài bằng AI'}</button></div><p class=mut>${msgs.topic||(AI?'Nội dung do AI tạo nên có thể có sai sót. Bạn nên đọc lại trước khi học.':'Cần kết nối AI để tạo bài. Hiện chỉ có bài mẫu “Mua trái cây”.')}</p></div>${(S.custom.length||LID!=='fruit')?`<div class=card><h3>Bài của bạn</h3><p><button class=b2 data-a=useL data-id=fruit>${LID==='fruit'?'▶ ':''}🍎 Mua trái cây (bài mẫu)</button></p>${S.custom.map(l=>`<p><button class=b2 data-a=useL data-id=${l.id}>${LID==l.id?'▶ ':''}${l.emo} ${esc(l.title)}</button> <button class=b2 data-a=delL data-id=${l.id} aria-label='Xoá bài'>🗑</button></p>`).join('')}</div>`:''}
  <div class=card><h3>Thiết bị của bạn</h3><p class=mut>Giọng đọc: ${TTS?(voice?'có ('+esc(voice.name)+', '+voice.lang+')':'có, nhưng không có giọng en-US — dùng giọng mặc định'):'không hỗ trợ'} · Ghi âm: ${window.MediaRecorder?'có':'không'} · Nhận dạng giọng nói: ${SR?'có':'không'}.<br>Âm thanh mẫu là giọng tổng hợp (synthetic) của trình duyệt, không phải người thật.</p></div>`}
-function vLesson(){const s=STEPS[step];let h=`<h1>${esc(TITLE)}</h1><div class=steps>${STEPS.map((x,i)=>`<span class="${i==step?'on ':''}${S.done.includes(x)?'ok':''}" data-a=step data-i=${i}>${x}. ${SN[i]}</span>`).join('')}</div>`;
+function vLesson(){const s=STEPS[step];let h=`<div class=lesson-companion>${pet(95)}<div><h1>${esc(TITLE)}</h1><p class=mut>${tr('Học từng bước cùng mèo nhé!')}</p></div></div><div class=steps>${STEPS.map((x,i)=>`<span class="${i==step?'on ':''}${S.done.includes(x)?'ok':''}" data-a=step data-i=${i}>${x}. ${SN[i]}</span>`).join('')}</div>`;
  if(s=='A')h+=`<div class=card><h2>A. Thử trước khi học</h2><p class=mut>Không tính giờ, không bị chấm điểm thấp. Cứ thử nói gì đó nhé.</p></div>`+task('a')+`<div class=card><button class=b2 data-a=cant>Tôi chưa trả lời được</button>${S.cant?'<p class=mut>Không sao! Hãy sang bước tiếp theo để nghe mẫu.</p>':''}</div>`;
  if(s=='B'){h+=`<div class=card><h2>B. Nghe hội thoại mẫu</h2><p class=mut>🔊 Âm thanh là giọng tổng hợp của trình duyệt (synthetic), không phải người thật.</p><div class=row><button id=pb data-a=pb>${pl.on?'⏸ Tạm dừng':'▶ Nghe cả đoạn'}</button><label>Tốc độ <select data-a=rate><option value=.7${rate==.7?' selected':''}>Chậm</option><option value=.85${rate==.85?' selected':''}>Vừa</option><option value=1${rate==1?' selected':''}>Bình thường</option></select></label></div><div class=row><label><input type=checkbox data-a=sen ${S.sen!==false?'checked':''}> Phụ đề tiếng Anh</label><label><input type=checkbox data-a=svi ${S.svi!==false?'checked':''}> Dịch tiếng Việt</label><label><input type=checkbox data-a=sipa ${S.sipa===true?'checked':''}> Hiện IPA (Mỹ)</label></div></div><div class=grid><div>${T.map((t,i)=>`<div class=turn><div class=who>${t[0]=='S'?'🧑 Đối tác':'🙋 Bạn'} <button class=b2 data-a=one data-i=${i} style="min-height:34px;padding:4px 10px">🔁</button></div>${S.sen!==false?`<div>${t[1]}</div>`:''}${S.sipa===true&&t[3]?`<div class=ipa>${t[3]}</div>`:''}${S.svi!==false?`<div class=mut>${t[2]}</div>`:''}${S.sen===false&&S.svi===false?'<div class=mut>(Phụ đề đang tắt)</div>':''}</div>`).join('')}</div><div class=card><h3>Từ & cụm từ chính</h3>${KW.map(w=>`<p><b>${w[0]}</b>${w[2]?`<br><span class=ipa>${w[2]}</span>`:''}<br><span class=mut>${w[1]}</span></p>`).join('')}</div></div>`}
  if(s=='C'){h+=`<div class=card><h2>C. Học cụm từ hữu ích</h2></div>`+PH.map((p,i)=>`<div class=card><h3>${p[0]}</h3>${p[3]?`<div class=ipa>${p[3]}</div>`:''}<p>${p[1]}<br><span class=mut>${p[2]}</span></p><div class=row><button class=b2 data-a=say data-t="${p[0]}">🔊 Nghe</button></div>${recUI('c'+i)}</div>`).join('')}
@@ -149,9 +157,9 @@ function vProg(){const sp=S.support,c=l=>sp.filter(x=>x.lvl==l).length,hn=sp.fil
  return `<h1>Tiến trình</h1><div class=card><h3>Bước đã hoàn thành</h3><p>${S.done.length?S.done.map(x=>x+'. '+SN[STEPS.indexOf(x)]).join(' · '):'Chưa có'}</p><h3>Nghe hiểu</h3><p>${S.quiz?S.quiz.score+'/'+S.quiz.total+' ('+S.quiz.d+')':'Chưa làm'}</p><h3>Hỗ trợ đã dùng khi nói</h3><p>Mẫu đầy đủ: ${c(1)} · Gợi ý từ khoá: ${c(2)} · Chỉ ảnh + mục tiêu: ${c(3)} · Bấm xin gợi ý: ${hn} lần. <span class=mut>(Dùng hỗ trợ là bình thường.)</span></p><h3>Tự đánh giá</h3><p>${esc(SC[0])}: ${an[S.assess[0]]||'—'}<br>${esc(SC[1])}: ${an[S.assess[1]]||'—'}</p></div>
  ${S.saveHist&&S.hist.length?`<div class=card><h3>Lịch sử phản hồi</h3>${S.hist.slice(-10).reverse().map(h=>`<p class=mut>${h.d} · ${esc(h.k)} · ${LB[h.label][0]} · “${esc(h.text)}”</p>`).join('')}</div>`:''}
  <div class=card><h3>Dữ liệu & quyền riêng tư</h3><p class=mut>• ${AI?'Khi bạn bấm Kiểm tra hoặc Tạo bài, <b>văn bản</b> (câu trả lời hoặc mô tả tình huống) được gửi qua máy chủ tới dịch vụ AI (không gửi bản ghi âm).':'Phiên bản demo này <b>không gửi gì tới dịch vụ AI</b>.'} Tiến trình lưu trong trình duyệt của bạn (localStorage) và <b>không tự đồng bộ giữa các thiết bị</b>.<br>• Bản ghi âm chỉ ở bộ nhớ tạm, không lưu lâu dài.<br>• Nếu trình duyệt (như Chrome) dùng nhận dạng giọng nói, âm thanh có thể được gửi tới nhà cung cấp trình duyệt để chuyển thành chữ.<br>• Nếu sau này kết nối AI, văn bản câu trả lời (không phải bản ghi) sẽ được gửi qua máy chủ của bạn; khoá API không bao giờ nằm trong trang web.</p><label><input type=checkbox data-a=hist ${S.saveHist?'checked':''}> Lưu lịch sử phản hồi & lần thử lại</label><div class=row><button class=b2 data-a=del>🗑 Xoá toàn bộ dữ liệu</button></div></div>`}
-function vPet(){const fed=Date.now()-S.fedAt<864e5;return `<h1>Góc thú cưng</h1><div class=card>${pet()}<p style="text-align:center">${fed?'Mèo đang vui 😸':'Mèo hơi đói, nhưng không sao đâu 🙂'} · 🪙 ${S.coins}</p><p><input type=text id=pn value="${esc(S.pet)}" maxlength=20 data-a=pname><span class=mut>Đặt tên cho thú cưng</span></p></div><div class=card><h3>Thức ăn</h3><div class=row>${FOOD.map((f,i)=>`<button class=b2 data-a=feed data-i=${i}>${f[0]} ${f[1]} · ${f[2]}🪙</button>`).join('')}</div></div><div class=card><h3>Phụ kiện</h3>${ACC.map((a,i)=>`<p>${a[0]} ${a[1]} ${S.owned.includes(i)?`<button class=b2 data-a=wear data-i=${i}>${S.worn.includes(a[0])?'Bỏ ra':'Đeo'}</button>`:`<button data-a=buy data-i=${i}>Mua · ${a[2]}🪙</button>`}</p>`).join('')}</div>`}
+function vPet(){const fed=Date.now()-S.fedAt<864e5;return `<h1>Góc thú cưng</h1><div class=card>${pet()}<p style="text-align:center">${fed?'Mèo đang vui 😸':'Mèo luôn sẵn sàng học cùng bạn 😸'} · 🪙 ${S.coins}</p><p><input type=text id=pn value="${esc(S.pet)}" maxlength=20 data-a=pname><span class=mut>Đặt tên cho thú cưng</span></p></div><div class=card><h3>Thức ăn</h3><p>🥣 ${S.food||0} <span>phần thưởng thức ăn</span></p><button data-a=feedReward ${!S.food?'disabled':''}>Cho mèo ăn phần thưởng</button><p class=mut>Hoàn thành nhiệm vụ nói để nhận thức ăn. Mỗi nhiệm vụ nhận một lần.</p><div class=row>${FOOD.map((f,i)=>`<button class=b2 data-a=feed data-i=${i}>${f[0]} ${f[1]} · ${f[2]}🪙</button>`).join('')}</div></div><div class=card><h3>Phụ kiện</h3>${ACC.map((a,i)=>`<p>${a[0]} ${a[1]} ${S.owned.includes(i)?`<button class=b2 data-a=wear data-i=${i}>${S.worn.includes(a[0])?'Bỏ ra':'Đeo'}</button>`:`<button data-a=buy data-i=${i}>Mua · ${a[2]}🪙</button>`}</p>`).join('')}</div>`}
 const NAV=[['home','🏠','Trang chủ'],['lesson','📖','Bài học'],['review','🔁','Ôn tập'],['progress','📊','Tiến trình'],['pet','🐱','Thú cưng']];
-function render(){const V={home:vHome,lesson:vLesson,review:vReview,progress:vProg,pet:vPet2};const f=document.activeElement,id=f&&f.id,pos=f&&f.selectionStart;$('#app').innerHTML=V[view]();$('#nav').innerHTML=NAV.map(n=>`<button class="${n[0]==view?'on':''}" data-a=go data-v=${n[0]}>${n[1]}<br>${n[2]}</button>`).join('');if(id&&$('#'+id)){$('#'+id).focus()}}
+function render(){const V={home:vHome,lesson:vLesson,review:vReview,progress:vProg,pet:vPet2};const f=document.activeElement,id=f&&f.id,pos=f&&f.selectionStart;$('#app').innerHTML=languageBar()+V[view]();$('#nav').innerHTML=NAV.map(n=>`<button class="${n[0]==view?'on':''}" data-a=go data-v=${n[0]}>${n[1]}<br>${n[2]}</button>`).join('');localize();if(id&&$('#'+id)){$('#'+id).focus()}}
 /* ---- actions ---- */
 const A={go(d){stopPl();view=d.v;scrollTo(0,0);render()},step(d){stopPl();step=+d.i;render()},
  say(d){say(d.t)},pb(){pl.on?stopPl():playFrom(pl.i||0)},one(d){pl.on=false;pl.id++;hi(+d.i);say(T[d.i][1])},
@@ -161,7 +169,7 @@ const A={go(d){stopPl();view=d.v;scrollTo(0,0);render()},step(d){stopPl();step=+
  chk(d){const k=d.k,c=R[k],raw=(TX[k]||'').trim();msgs[k]='';if(!raw){fb[k]={empty:1};render();return}
   const r=evalAns(raw,c.tk);fb[k]=Object.assign(r,{edited:!!ED[k]&&!!ASRT[k],text:raw});const first=!S.tries[k];S.tries[k]=(S.tries[k]||0)+1;S.last[k]=r.label;
   S.support.push({k,lvl:c.lvl||1,hint:!!H[k],d:today()});if(S.saveHist){S.hist.push({k,label:r.label,text:raw.slice(0,200),d:today()});S.hist=S.hist.slice(-50)}
-  earn('try:'+k,2);if(!first)earn('retry:'+k,2);if(S.tries.a)markDone('A');if(S.tries.e1&&S.tries.e2&&S.tries.e3)markDone('E');if(S.tries.f)markDone('F');save();render();aiFb(k,c,raw)},
+  if(r.label==='done')petReward(k);earn('try:'+k,2);if(!first)earn('retry:'+k,2);if(S.tries.a)markDone('A');if(S.tries.e1&&S.tries.e2&&S.tries.e3)markDone('E');if(S.tries.f)markDone('F');save();render();aiFb(k,c,raw)},
  cant(){S.cant=true;earn('cant',2);S.support.push({k:'a',lvl:1,hint:false,d:today(),cant:1});markDone('A');save();render()},
  quiz(){const n=s=>String(s).toLowerCase().replace(/[$.,!?]/g,'').replace(/\b(dollars?|usd)\b/g,'').replace(/\s+/g,' ').trim();let sc=0;
   Q.forEach((q,i)=>{const v=n(QA[i]||'');const ok=q.t=='mc'?v===n(q.a):q.a.includes(v);QR[i]={ok};if(ok)sc++});S.quiz={score:sc,total:Q.length,d:today()};markDone('D');render()},
@@ -174,10 +182,246 @@ const A={go(d){stopPl();view=d.v;scrollTo(0,0);render()},step(d){stopPl();step=+
  feed(d){const f=FOOD[d.i];if(S.coins<f[2]){toast('Chưa đủ xu');return}S.coins-=f[2];S.fedAt=Date.now();save();toast(f[0]+' Mèo ăn ngon!');render()},
  buy(d){const a=ACC[d.i];if(S.coins<a[2]){toast('Chưa đủ xu');return}S.coins-=a[2];S.owned.push(+d.i);S.worn.push(a[0]);save();render()},
  wear(d){const e=ACC[d.i][0];S.worn=S.worn.includes(e)?S.worn.filter(x=>x!==e):S.worn.concat(e);save();render()},
- pname(){},meow(){const g=document.querySelector('.catg');if(g){g.classList.remove('hop');void g.getBoundingClientRect();g.classList.add('hop')}toast(`Meo~ 😺`)},wall(d){S.wall=d.c;save();render()},buyA(d){const a=ACS[d.k];if(S.coins<a.p){toast(`Chưa đủ xu`);return}S.coins-=a.p;S.own2.push(d.k);S.wear[a.s]=d.k;save();render()},wearA(d){const a=ACS[d.k];S.wear[a.s]=S.wear[a.s]==d.k?null:d.k;save();render()},buyR(d){const r=RM[d.k];if(S.coins<r[2]){toast(`Chưa đủ xu`);return}S.coins-=r[2];S.own2.push('r:'+d.k);S.room.push(d.k);save();render()},placeR(d){S.room=S.room.includes(d.k)?S.room.filter(x=>x!==d.k):S.room.concat(d.k);save();render()}};
+ pname(){},lang(d,t){S.lang=t.value;save();render()},feedReward(){if(!S.food)return;S.food--;S.fedAt=Date.now();petMood='eat';save();render();toast('Mèo ăn ngon!');setTimeout(()=>{petMood='idle';render()},3000)},meow(){petMood='wave';render();setTimeout(()=>{petMood='idle';render()},1800);const g=document.querySelector('.catg');if(g){g.classList.remove('hop');void g.getBoundingClientRect();g.classList.add('hop')}toast(`Meo~ 😺`)},wall(d){S.wall=d.c;save();render()},buyA(d){if(S.own2.includes(d.k))return;const a=ACS[d.k];if(S.coins<a.p){toast(`Chưa đủ xu`);return}S.coins-=a.p;S.own2.push(d.k);S.wear[a.s]=d.k;save();render()},wearA(d){const a=ACS[d.k];S.wear[a.s]=S.wear[a.s]==d.k?null:d.k;save();render()},buyR(d){if(S.own2.includes('r:'+d.k))return;const r=RM[d.k];if(S.coins<r[2]){toast(`Chưa đủ xu`);return}S.coins-=r[2];S.own2.push('r:'+d.k);S.room.push(d.k);save();render()},placeR(d){S.room=S.room.includes(d.k)?S.room.filter(x=>x!==d.k):S.room.concat(d.k);save();render()}};
 document.body.addEventListener('click',e=>{const t=e.target.closest('[data-a]');if(!t||t.tagName==='SELECT'||t.tagName==='INPUT')return;A[t.dataset.a]&&A[t.dataset.a](t.dataset,t)});
 document.body.addEventListener('change',e=>{const t=e.target;if(t.tagName==='SELECT'||t.type==='checkbox'){const f=A[t.dataset.a];f&&f(t.dataset,t)}});
 document.body.addEventListener('input',e=>{const t=e.target;if(t.id==='topic')TOP=t.value;if(t.dataset.k&&t.id.indexOf('tx-')==0){TX[t.dataset.k]=t.value;if(ASRT[t.dataset.k]&&t.value!==ASRT[t.dataset.k])ED[t.dataset.k]=true}
  else if(t.dataset.q!==undefined)QA[t.dataset.q]=t.value;else if(t.dataset.a==='pname'){S.pet=t.value.trim()||'Mèo Con';save()}});
+
+const DICT={};
+function add(vi,en,zh){DICT[vi]=[en,zh]}
+function tr(t){if(!S.lang||S.lang==='vi')return t;const i=S.lang==='zh-TW'?1:0;let out=t;for(const [a,b] of Object.entries(DICT).sort((x,y)=>y[0].length-x[0].length))out=out.split(a).join(b[i]);return out}
+function languageBar(){return `<header class=language-bar><span class=brand>🐾 CattySpeaking</span><label>🌐 <select data-a=lang aria-label="Language"><option value=vi ${S.lang==='vi'?'selected':''}>Tiếng Việt</option><option value=en ${S.lang==='en'?'selected':''}>English</option><option value=zh-TW ${S.lang==='zh-TW'?'selected':''}>繁體中文</option></select></label></header>`}
+function localize(){document.documentElement.lang=S.lang||'vi';if(S.lang==='vi')return;for(const root of [$('#app'),$('#nav'),$('#demo')]){const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let n;while(n=w.nextNode()){if(n.parentElement.closest('[data-a=lang],.ipa,input,textarea,script'))continue;n.nodeValue=tr(n.nodeValue)}root.querySelectorAll('[placeholder]').forEach(e=>e.placeholder=tr(e.placeholder))}}
+add("Trang chủ","Home","首頁");
+add("Bài học","Lesson","課程");
+add("Ôn tập","Review","複習");
+add("Tiến trình","Progress","學習進度");
+add("Thú cưng","My cat","我的貓咪");
+add("Bài hiện tại:","Current lesson:","目前課程：");
+add("Mua trái cây","Buying fruit","買水果");
+add("15–20 phút · Nghe mẫu → nói có hỗ trợ → tự nói.","15–20 minutes · Listen → speak with support → speak independently.","15–20 分鐘 · 聽示範 → 輔助口說 → 獨立表達。");
+add("Tiếp tục bài học","Continue lesson","繼續課程");
+add("Bắt đầu","Start","開始");
+add("Mục tiêu hôm nay","Today's goal","今日目標");
+add("bước hoàn thành","steps completed","步驟已完成");
+add("Hoàn thành 6 bước (A–F) để nhận xu thưởng hằng ngày. Xu chỉ là phần thưởng vui, không đo trình độ nói.","Complete 6 steps (A–F) for a daily coin bonus. Coins are for fun, not a speaking proficiency score.","完成六個步驟（A–F）可獲得每日金幣。金幣僅是獎勵，不代表口說程度。");
+add("Tạo hội thoại của riêng bạn","Create your own conversation","建立專屬對話");
+add("Mô tả tình huống bạn muốn luyện, ví dụ: “Tôi muốn mua trà sữa: hỏi món bán chạy nhất, chọn đường và đá, mang đi hay uống tại đây, thanh toán bằng gì.”","Describe a situation, e.g. “Order bubble tea: ask for the bestseller, choose sugar and ice, takeaway or dine-in, and payment.”","描述想練習的情境，例如：「買珍珠奶茶：詢問人氣飲品、選擇甜度冰量、外帶或內用及付款方式。」");
+add("Bạn muốn luyện nói trong tình huống nào?","What situation would you like to practise?","你想練習哪種口說情境？");
+add("Tạo bài bằng AI","Create with AI","用 AI 建立課程");
+add("Đang tạo…","Creating…","正在建立……");
+add("Đang tạo bài… thường mất 10–40 giây.","Creating your lesson… usually 10–40 seconds.","正在建立課程……通常需要 10–40 秒。");
+add("Nội dung do AI tạo nên có thể có sai sót. Bạn nên đọc lại trước khi học.","AI-generated content may contain errors. Review it before studying.","AI 生成內容可能有誤，學習前請先確認。");
+add("Cần kết nối AI để tạo bài. Hiện chỉ có bài mẫu “Mua trái cây”.","AI connection is needed to create lessons. The fruit-shopping sample is available.","建立課程需要連接 AI。目前可使用買水果示範課程。");
+add("Không tạo được bài lúc này (AI bận hoặc nội dung chưa đạt kiểm tra). Hãy thử lại hoặc mô tả khác đi. Hệ thống không tự bịa bài thay thế.","Could not create the lesson (AI is busy or the output failed validation). Please try again. No substitute lesson was invented.","無法建立課程（AI 忙碌或內容未通過檢查）。請重試。系統不會虛構替代課程。");
+add("Bài của bạn","Your lessons","你的課程");
+add("(bài mẫu)","(sample)","（示範課程）");
+add("Thiết bị của bạn","Your device","你的裝置");
+add("Giọng đọc:","Voice:","朗讀語音：");
+add("Ghi âm:","Recording:","錄音：");
+add("Nhận dạng giọng nói:","Speech recognition:","語音辨識：");
+add("Âm thanh mẫu là giọng tổng hợp (synthetic) của trình duyệt, không phải người thật.","Sample audio uses your browser's synthetic voice, not a human recording.","示範音訊為瀏覽器合成語音，並非真人錄音。");
+add("Thử trước","Try first","先試試看");
+add("Nghe mẫu","Listen","聽示範");
+add("Cụm từ","Phrases","實用片語");
+add("Nghe hiểu","Listening check","聽力理解");
+add("Tình huống mới","New situation","新情境");
+add("Tự đánh giá","Self-check","自我評估");
+add("A. Thử trước khi học","A. Try before learning","A. 學習前先試試");
+add("Không tính giờ, không bị chấm điểm thấp. Cứ thử nói gì đó nhé.","No timer and no low grades. Give it a try.","不限時、不給低分，放心試著說吧。");
+add("Tôi chưa trả lời được","I need to learn first","我還不會回答");
+add("Không sao! Hãy sang bước tiếp theo để nghe mẫu.","That's okay! Continue to hear an example.","沒關係！到下一步聽示範。");
+add("B. Nghe hội thoại mẫu","B. Listen to the conversation","B. 聽對話示範");
+add("Âm thanh là giọng tổng hợp của trình duyệt (synthetic), không phải người thật.","Audio is a synthetic browser voice, not a human recording.","音訊為瀏覽器合成語音，並非真人錄音。");
+add("Nghe cả đoạn","Play conversation","播放整段對話");
+add("Tạm dừng","Pause","暫停");
+add("Tốc độ","Speed","速度");
+add("Chậm","Slow","慢速");
+add("Vừa","Medium","中速");
+add("Bình thường","Normal","正常");
+add("Phụ đề tiếng Anh","English subtitles","英文字幕");
+add("Dịch tiếng Việt","Lesson translation / meaning","課程翻譯／釋義");
+add("Hiện IPA (Mỹ)","Show IPA (US)","顯示美式 IPA");
+add("Đối tác","Partner","對話夥伴");
+add("Từ & cụm từ chính","Key words and phrases","重點單字與片語");
+add("C. Học cụm từ hữu ích","C. Learn useful phrases","C. 學習實用片語");
+add("D. Nghe hiểu","D. Listening check","D. 聽力理解");
+add("Nghe lại hội thoại nếu cần.","Replay the conversation if needed.","需要時可再聽一次對話。");
+add("Nộp bài","Submit answers","提交答案");
+add("Kết quả gần nhất:","Latest result:","最近結果：");
+add("Chưa đúng","Not yet","尚未答對");
+add("Đúng","Correct","正確");
+add("E. Nói với ít hỗ trợ dần","E. Speak with gradually less support","E. 逐步減少輔助練口說");
+add("Người bán nói trước, bạn trả lời. Xin gợi ý không bị trừ điểm — hệ thống chỉ ghi lại để bạn thấy tiến bộ.","The partner speaks first. Reply in English. Hints have no penalty; they help you track your progress.","夥伴先說，你用英文回答。使用提示不扣分；紀錄能幫你了解進步。");
+add("F. Áp dụng vào tình huống mới","F. Apply it to a new situation","F. 應用於新情境");
+add("Không có đáp án mẫu trước khi bạn thử. Sau phản hồi, bạn có thể ghi âm lại.","Try without a model answer first. After feedback, you can record again.","先不看範例回答，收到回饋後可再次錄音。");
+add("G. Tự đánh giá","G. Self-check","G. 自我評估");
+add("Đây là cảm nhận của chính bạn. Thời gian học và số xu không chứng minh khả năng giao tiếp.","This is your own reflection. Study time and coins do not prove communication ability.","這是你自己的感受，學習時間與金幣不代表溝通能力。");
+add("← Quay lại","← Back","← 上一步");
+add("Tiếp tục →","Continue →","下一步 →");
+add("Một chút","A little","有一點");
+add("Chưa","Not yet","還沒");
+add("Có","Yes","可以");
+add("Nghe câu hỏi","Hear question","聽問題");
+add("Gợi ý","Hint","提示");
+add("Gõ câu tiếng Anh của bạn","Type your English answer","輸入你的英文回答");
+add("Câu trả lời (từ nhận dạng giọng nói hoặc bạn gõ):","Your answer (speech recognition or typed):","你的回答（語音辨識或輸入）：");
+add("Kiểm tra","Check answer","檢查回答");
+add("Hệ thống nghe sai","Fix transcript","更正辨識文字");
+add("Ghi lại","Record again","重新錄音");
+add("Ghi âm","Record","錄音");
+add("Dừng","Stop","停止");
+add("Nghe lại bản ghi","Play my recording","播放我的錄音");
+add("Hoàn thành một phần","Partly complete","部分完成");
+add("Thử lại với hỗ trợ","Try again with support","使用輔助再試一次");
+add("Hoàn thành","Complete","完成");
+add("Cụm từ đã học","Phrases learned","已學片語");
+add("Bài nói cần thử lại","Speaking tasks to retry","待重練的口說任務");
+add("Luyện lại","Practise again","再次練習");
+add("Chưa có bài nào cần thử lại.","No tasks to retry yet.","目前沒有需要重練的任務。");
+add("Bước đã hoàn thành","Completed steps","已完成步驟");
+add("Hỗ trợ đã dùng khi nói","Support used in speaking","口說時使用的輔助");
+add("Lịch sử phản hồi","Feedback history","回饋紀錄");
+add("Dữ liệu & quyền riêng tư","Data and privacy","資料與隱私");
+add("Lưu lịch sử phản hồi & lần thử lại","Save feedback and attempt history","儲存回饋與練習紀錄");
+add("Xoá toàn bộ dữ liệu","Delete all data","刪除所有資料");
+add("Nhà của","Home of","貓咪小屋：");
+add("Chạm vào mèo để vuốt ve.","Tap your cat to pet it.","點一下摸摸貓咪。");
+add("Mèo đang vui 😸","Your cat is happy 😸","貓咪很開心 😸");
+add("Mèo luôn sẵn sàng học cùng bạn 😸","Your cat is always ready to learn with you 😸","貓咪隨時準備陪你學習 😸");
+add("Đặt tên cho mèo","Name your cat","為貓咪取名");
+add("Màu tường","Wall colour","牆壁顏色");
+add("Thức ăn","Food","食物");
+add("phần thưởng thức ăn","food rewards","份食物獎勵");
+add("Cho mèo ăn phần thưởng","Feed a food reward","餵食獎勵食物");
+add("Hoàn thành nhiệm vụ nói để nhận thức ăn. Mỗi nhiệm vụ nhận một lần.","Complete a speaking task to earn food. Each task rewards you once.","完成口說任務可獲得食物，每個任務限領一次。");
+add("Tủ đồ của mèo","Cat wardrobe","貓咪衣櫃");
+add("Cửa hàng phụ kiện","Accessory shop","配件商店");
+add("Đồ trong nhà","Room decorations","房間裝飾");
+add("Tủ đồ còn trống. Hãy mua phụ kiện ở cửa hàng bên dưới.","Your wardrobe is empty. Find accessories in the shop below.","衣櫃還是空的，到下方商店購買配件吧。");
+add("Bạn đã có tất cả phụ kiện!","You own every accessory!","你已擁有所有配件！");
+add("Cởi ra","Take off","脫下");
+add("Mặc","Wear","穿戴");
+add("Mua ·","Buy ·","購買 ·");
+add("Cất đi","Put away","收起");
+add("Đặt vào nhà","Place in room","放入房間");
+add("Mũ cao","Top hat","高帽");
+add("Vương miện","Crown","皇冠");
+add("Kính tròn","Round glasses","圓框眼鏡");
+add("Kính râm","Sunglasses","太陽眼鏡");
+add("Vòng cổ chuông","Bell collar","鈴鐺項圈");
+add("Khăn len","Scarf","圍巾");
+add("Nơ","Bow","蝴蝶結");
+add("Ổ nằm","Cat bed","貓窩");
+add("Bát ăn","Food bowl","食碗");
+add("Cuộn len","Yarn ball","毛線球");
+add("Cột cào móng","Scratching post","貓抓柱");
+add("Chậu cây","Plant","盆栽");
+add("Thảm","Rug","地毯");
+add("Cửa sổ","Window","窗戶");
+add("Táo","Apple","蘋果");
+add("Cá","Fish","魚");
+add("Chưa đủ xu","Not enough coins","金幣不足");
+add("Mèo ăn ngon!","Yummy! Your cat enjoyed it!","好吃！貓咪吃得很開心！");
+add("Hoàn thành nhiệm vụ! +1 phần thức ăn 🥣","Task complete! +1 food reward 🥣","任務完成！獲得一份食物 🥣");
+add("Mẫu:","Model:","範例：");
+add("Từ gợi ý:","Hint words:","提示詞：");
+add("Chưa có","None yet","尚無");
+add("Chưa làm","Not attempted","尚未作答");
+add("Hãy thử bước này một lần để tiếp tục.","Try this step once to continue.","先試一次這個步驟，即可繼續。");
+add("Đây là bước cuối. Hãy trả lời cả hai câu để hoàn thành bài.","Final step: answer both questions to finish.","最後一步：回答兩個問題即可完成課程。");
+add("Bạn đã hoàn thành bài học! Hãy ghé Góc thú cưng để dùng xu, hoặc sang Ôn tập để luyện lại.","Lesson complete! Visit your cat or review what you learned.","課程完成！去看看貓咪，或複習所學內容。");
+add("Xin chào! Tôi giúp gì được cho bạn?","Hello! Can I help you?","你好！需要幫忙嗎？");
+add("Chào! Tôi muốn mua hai quả táo.","Hi! I'd like two apples.","你好！我想買兩顆蘋果。");
+add("Được. Bạn cần gì nữa không?","Sure. Anything else?","好的，還需要什麼嗎？");
+add("Có. Tôi muốn ba quả chuối. Giá bao nhiêu?","Yes. I'd like three bananas. How much are they?","需要，我想買三根香蕉。多少錢？");
+add("Hai quả táo bốn đô. Ba quả chuối ba đô. Tổng cộng bảy đô.","Two apples cost four dollars. Three bananas cost three dollars. Seven dollars altogether.","兩顆蘋果四元，三根香蕉三元，總共七元。");
+add("Được. Của bạn đây. Cảm ơn!","Okay. Here you go. Thank you!","好的，給你。謝謝！");
+add("Cảm ơn bạn. Chúc một ngày tốt lành!","Thank you. Have a nice day!","謝謝，祝你有美好的一天！");
+add("quả táo","apples","蘋果");
+add("quả chuối","bananas","香蕉");
+add("Tôi muốn … (lịch sự)","I'd like … (polite request)","我想要……（禮貌說法）");
+add("Chúng giá bao nhiêu?","How much are they?","這些多少錢？");
+add("Còn gì nữa không?","Anything else?","還需要什麼嗎？");
+add("Tôi muốn mua hai quả táo.","I'd like two apples.","我想買兩顆蘋果。");
+add("Dùng khi chọn món.","Use this when ordering.","點餐或選購時使用。");
+add("Bạn cần gì nữa không? (người bán hỏi)","Anything else? (the seller asks)","還需要什麼嗎？（店員詢問）");
+add("Trả lời: “No, thank you.”","Reply: “No, thank you.”","回答：「No, thank you.」");
+add("ba quả chuối","three bananas","三根香蕉");
+add("Số lượng + trái cây.","Quantity + fruit.","數量＋水果。");
+add("Của bạn đây.","Here you go.","給你。");
+add("Khi đưa tiền.","When handing over money.","付錢時使用。");
+add("Bạn đang ở quầy trái cây. Hãy thử mua 2 quả táo.","You are at a fruit stall. Try buying 2 apples.","你在水果攤，試著買兩顆蘋果。");
+add("Vòng 1 — Mua 2 quả táo.","Round 1 — Buy 2 apples.","第一輪——買兩顆蘋果。");
+add("Vòng 2 — Mua 3 quả chuối.","Round 2 — Buy 3 bananas.","第二輪——買三根香蕉。");
+add("Vòng 3 — Chỉ có ảnh: hãy mua số táo trong ảnh (2 quả).","Round 3 — Use the picture to buy 2 apples.","第三輪——根據圖片買兩顆蘋果。");
+add("Tình huống mới — Mua 3 quả cam và hỏi giá.","New situation — Buy 3 oranges and ask the price.","新情境——買三顆柳橙並詢問價格。");
+add("Bắt đầu bằng:","Start with:","開頭可以說：");
+add("rồi hỏi:","then ask:","然後問：");
+add("Người mua mua mấy quả táo?","How many apples does the customer buy?","顧客買了幾顆蘋果？");
+add("Điền số: “I’d like ___ bananas.”","Fill in: “I’d like ___ bananas.”","填入數字：「I’d like ___ bananas.」");
+add("Tổng cộng mấy đô-la? (gõ số)","What is the total in dollars? (type a number)","總共多少元？（輸入數字）");
+add("“Anything else?” nghĩa là gì?","What does “Anything else?” mean?","「Anything else?」是什麼意思？");
+add("Bạn tên gì?","What is your name?","你叫什麼名字？");
+add("Bạn cần gì nữa không?","Do you need anything else?","還需要什麼嗎？");
+add("Bao nhiêu tiền?","How much does it cost?","多少錢？");
+add("Người mua nói “two apples”.","The customer says “two apples”.","顧客說「two apples」。");
+add("Người mua nói “three bananas”.","The customer says “three bananas”.","顧客說「three bananas」。");
+add("Người bán nói “That’s seven dollars”.","The seller says “That's seven dollars”.","店員說「That's seven dollars」。");
+add("Người bán dùng câu này sau khi bạn chọn món.","The seller asks this after you choose an item.","店員在你選好商品後問這句話。");
+add("Mình có thể nói món và số lượng mà không cần câu mẫu không?","Can I state the item and quantity without a model?","我能不看範例說出商品和數量嗎？");
+add("Mình có thể hỏi giá mà không nhìn đáp án không?","Can I ask the price without looking at the answer?","我能不看答案詢問價格嗎？");
+add("Phản hồi AI (dựa trên văn bản, AI không nghe bản ghi)","AI feedback (text-based; AI does not hear the recording)","AI 回饋（依文字；AI 不會聽取錄音）");
+add("Answer-based check (không phải đánh giá AI)","Answer-based check (not AI assessment)","依回答內容檢查（非 AI 評估）");
+add("Chưa có câu trả lời để kiểm tra. Hãy ghi âm lại hoặc gõ câu trả lời. Hệ thống không tự bịa lời nói của bạn.","No answer to check. Record or type your answer. Your speech will not be invented.","尚無可檢查的回答。請錄音或輸入，系統不會虛構你的發言。");
+add("Phản hồi dựa trên văn bản:","Feedback based on this text:","回饋依據的文字：");
+add("(đã sửa bởi bạn)","(edited by you)","（已由你修改）");
+add("Hệ thống không chấm phát âm, trọng âm hay ngữ điệu.","Pronunciation, stress and intonation are not assessed.","系統不評估發音、重音或語調。");
+add("Bạn đã nói rõ món và số lượng.","You stated the item and quantity clearly.","你清楚說出了商品和數量。");
+add("Bạn đã biết hỏi giá.","You asked for the price.","你會詢問價格了。");
+add("Bạn đã dám thử nói — đó là bước quan trọng nhất.","You tried speaking — that is an important step.","你勇敢開口了，這是重要的一步。");
+add("Hãy nói thêm số lượng bạn muốn mua.","Add the quantity you want to buy.","請補充想購買的數量。");
+add("Bạn chưa hỏi giá. Hãy thêm: “How much are they?”","Add a price question: “How much are they?”","請加上詢問價格：「How much are they?」");
+add("Câu của bạn đã đủ ý. Bạn có thể nói lịch sự hơn bằng “I’d like …, please.”","Your meaning is complete. For a polite request, say “I'd like …, please.”","意思已完整。想更禮貌可說「I'd like …, please.」。");
+add("Rất tốt. Lần sau thử nói chậm và rõ từng cụm.","Good work. Next time, speak slowly and clearly in phrases.","做得好，下次試著慢慢說清楚每個片語。");
+add("Thử lại không nhìn mẫu để nói trôi chảy hơn.","Try again without the model to build fluency.","不看範例再試一次，練習流暢表達。");
+add("Hãy nói lại một lần nữa với câu gợi ý.","Try saying it again using the hint.","使用提示再說一次。");
+add("Bạn có thể ghi âm lại hoặc sửa chữ ở ô bên trên. Phản hồi tiếp theo sẽ dựa trên văn bản đã sửa.","Record again or edit the transcript above. The next feedback uses your edited text.","可重新錄音或修改上方文字。下次回饋會依據修改後的文字。");
+add("Không kết nối được AI, đang dùng kiểm tra theo câu trả lời","AI unavailable; using the answer-based check.","AI 無法連接，改用依回答內容檢查。");
+add("Đang ghi âm… bấm “Dừng” khi xong.","Recording… press Stop when finished.","錄音中……完成後請按停止。");
+add("Bạn chưa cho phép micro. Bạn vẫn có thể gõ câu trả lời ở ô bên dưới.","Microphone access was not allowed. You can type your answer below.","未允許麥克風權限，仍可在下方輸入回答。");
+add("Không mở được micro. Hãy gõ câu trả lời bên dưới.","Could not open the microphone. Type your answer below.","無法開啟麥克風，請在下方輸入回答。");
+add("Trình duyệt này không hỗ trợ ghi âm. Hãy gõ câu trả lời bên dưới.","Recording is unavailable in this browser. Type your answer below.","此瀏覽器不支援錄音，請在下方輸入回答。");
+add("Bản ghi trống hoặc quá ngắn / quá nhỏ. Hãy ghi lại gần micro hơn.","The recording is empty, too short or too quiet. Try again closer to the microphone.","錄音為空、太短或太小聲，請靠近麥克風重錄。");
+add("Đã ghi xong. Bản ghi chỉ nằm tạm trong trình duyệt, mất khi tải lại trang.","Recording complete. Audio is temporary and is lost when you reload.","錄音完成。音訊暫存於瀏覽器，重新整理後會消失。");
+add("Trình duyệt này không có nhận dạng giọng nói, nên hệ thống không tự chuyển lời nói thành chữ. Hãy gõ lại điều bạn đã nói.","Speech recognition is unavailable. Type what you said.","此瀏覽器無語音辨識功能，請輸入你剛才說的內容。");
+add("AI connected · Đã kết nối AI (chỉ gửi văn bản câu trả lời, không gửi bản ghi âm)","AI connected · Text only; recordings are not sent to the AI.","AI 已連接 · 僅傳送文字，不會向 AI 傳送錄音。");
+add("Demo mode — AI not connected · Chế độ demo: chưa kết nối AI","Demo mode — AI not connected","示範模式——尚未連接 AI");
+add("Mẫu đầy đủ:","Full model:","完整範例：");
+add("Gợi ý từ khoá:","Word hints:","關鍵詞提示：");
+add("Chỉ ảnh + mục tiêu:","Picture + goal only:","僅圖片與目標：");
+add("Bấm xin gợi ý:","Hints requested:","提示使用次數：");
+add("lần.","times.","次。");
+add("(Dùng hỗ trợ là bình thường.)","(Using support is normal.)","（使用輔助是正常的。）");
+add("Khi bạn bấm Kiểm tra hoặc Tạo bài,","When you check an answer or create a lesson,","當你檢查回答或建立課程時，");
+add("văn bản","text","文字");
+add("(câu trả lời hoặc mô tả tình huống) được gửi qua máy chủ tới dịch vụ AI (không gửi bản ghi âm).","(your answer or situation) is sent via the server to AI. Recordings are not sent.","（你的回答或情境描述）經由伺服器傳送至 AI，不會傳送錄音。");
+add("Tiến trình lưu trong trình duyệt của bạn (localStorage) và","Progress is stored in your browser (localStorage) and","進度儲存於你的瀏覽器（localStorage），而且");
+add("không tự đồng bộ giữa các thiết bị","is not automatically synced between devices","不會自動跨裝置同步");
+add("Bản ghi âm chỉ ở bộ nhớ tạm, không lưu lâu dài.","Audio is kept temporarily, not permanently.","錄音僅暫存，不會永久儲存。");
+add("Nếu trình duyệt (như Chrome) dùng nhận dạng giọng nói, âm thanh có thể được gửi tới nhà cung cấp trình duyệt để chuyển thành chữ.","Browser speech recognition may send audio to its provider for transcription.","瀏覽器語音辨識可能會將音訊傳給其供應商以轉成文字。");
+add("Nếu sau này kết nối AI, văn bản câu trả lời (không phải bản ghi) sẽ được gửi qua máy chủ của bạn; khoá API không bao giờ nằm trong trang web.","When AI is connected, answer text is sent through the server. The API key is never placed in the web page.","連接 AI 後，回答文字會透過伺服器傳送；API 金鑰不會放在網頁中。");
+add("Phiên bản demo này","This demo","此示範版本");
+add("không gửi gì tới dịch vụ AI","sends nothing to AI services","不會傳送資料至 AI 服務");
+add("có, nhưng không có giọng en-US — dùng giọng mặc định","available, but no en-US voice; using the default","可用，但無美式英語聲音，使用預設聲音");
+add("không hỗ trợ","not supported","不支援");
+add("đầu","head","頭部");
+add("mặt","face","臉部");
+add("cổ","neck","頸部");
+add('Học từng bước cùng mèo nhé!','Learn step by step with your cat!','和貓咪一起循序學習！');
+add('Chọn ngôn ngữ trước khi tạo bài mới. Bài đã lưu giữ ngôn ngữ lúc tạo.','Choose a language before creating a lesson. Saved lessons keep their original language.','建立課程前先選擇語言。已儲存課程會保留建立時的語言。');
+add('Nói','Speak','口說');add('Bạn','You','你');
+add('Trình duyệt không hỗ trợ giọng đọc','Your browser does not support speech synthesis','此瀏覽器不支援語音合成');
 render();
 </script></body></html>
