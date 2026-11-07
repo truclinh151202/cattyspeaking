@@ -72,7 +72,7 @@ export default async (req) => {
   if (request.length < 5) return Response.json({ error: "empty" }, { status: 400 });
   const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
   const cfg = { responseMimeType: "application/json", temperature: 0.6 };
-  if (/flash/.test(model)) cfg.thinkingConfig = { thinkingBudget: 0 };
+  if (model === "gemini-3.1-flash-lite") {   cfg.thinkingConfig = { thinkingLevel: "minimal" }; }
   const deadline = Date.now() + 55000;
   let last = "";
   for (let i = 0; i < 2 && deadline - Date.now() > 6000; i++) {
