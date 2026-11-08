@@ -21,3 +21,5 @@ assert.ok(stored);console.log('PASS frontend: old storage preserved, 3 languages
 
 for(const lang of ['vi','en','zh-TW']){run(`S.lang='${lang}'`);for(const section of ['current','create','saved','goals','plan','device']){run(`homeSection='${section}';view='home';render()`);assert.ok(run('vHome().length')>50);if(section==='current')assert.ok(!run('vHome().includes("id=topic")'));}}
 run('A.menuToggle()');assert.equal(run('menuOpen'),true);run("A.menuSection({section:'create'})");assert.equal(run('homeSection'),'create');assert.equal(run('menuOpen'),false);
+
+run("homeSection='current'");assert.ok(run('vHome().includes("Học tiếp")')||run('vHome().includes("繼續學習")'));for(const i of [0,4,5]){run(`step=${i}`);assert.ok(!run('vLesson().includes("class=steps")'));assert.ok(run('task("a").indexOf("c.q")')===-1);}
