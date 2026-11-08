@@ -18,3 +18,6 @@ run("AI=true;R.e1={q:'Hello?',goal:'Say a greeting',tk:{sample:'Hello',req:[{any
 // A response arriving after a lesson/input change must not overwrite current feedback.
 let resolve;ctx.fetch=()=>new Promise(r=>resolve=r);run("A.newTry({k:'e1'});TX.e1='Hello'");const delayed=run("A.chk({k:'e1'})");run("TX.e1='Changed answer'");resolve({ok:true,json:async()=>({label:'done',criteria:[],variants:[]})});await delayed;assert.notEqual(run('fb.e1?.text'),'Hello');assert.equal(run('pending.e1'),undefined);
 assert.ok(stored);console.log('PASS frontend: old storage preserved, 3 languages x 8 views, sample IPA, independent attempts, no duplicate rewards, adaptive suggestion, hints, offline conversation variants, fluency gate, API failure and stale response protection.');
+
+for(const lang of ['vi','en','zh-TW']){run(`S.lang='${lang}'`);for(const section of ['current','create','saved','goals','plan','device']){run(`homeSection='${section}';view='home';render()`);assert.ok(run('vHome().length')>50);if(section==='current')assert.ok(!run('vHome().includes("id=topic")'));}}
+run('A.menuToggle()');assert.equal(run('menuOpen'),true);run("A.menuSection({section:'create'})");assert.equal(run('homeSection'),'create');assert.equal(run('menuOpen'),false);
