@@ -79,7 +79,7 @@ export default async (req) => {
   try { b = await req.json(); } catch { return Response.json({ error: "bad json" }, { status: 400 }); }
   const language = ["vi", "en", "zh-TW"].includes(b.language) ? b.language : "vi";
   const localizedSYS = SYS + (language === "en" ? "\nLANGUAGE OVERRIDE: Write all learner explanations, title, vi fields, notes, quiz questions and options, goals, hints and selfcheck in English. Keep field names unchanged; turns.en and sample remain English; ipa remains General American IPA." : language === "zh-TW" ? "\nLANGUAGE OVERRIDE: Write all learner explanations, title, vi fields, notes, quiz questions and options, goals, hints and selfcheck in Traditional Chinese (Taiwan). Keep field names unchanged; turns.en and sample remain English; ipa remains General American IPA." : "");
-  const request = String(b.request || "").trim().slice(0, 400);
+  const request = String(b.request || "").trim().slice(0, 3500);
   if (request.length < 5) return Response.json({ error: "empty" }, { status: 400 });
   const model = process.env.GEMINI_MODEL || "gemini-3.1-flash-lite";
   const cfg = { responseMimeType: "application/json", temperature: 0.6 };

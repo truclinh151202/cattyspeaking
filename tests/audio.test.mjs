@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import pronunciation from '../netlify/functions/pronunciation.mjs';
+process.env.GEMINI_API_KEY='test-placeholder';
+const wav=Buffer.alloc(364);wav.write('RIFF');wav.write('WAVE',8);const audio=wav.toString('base64');
+const req=b=>new Request('http://test/api/pronunciation',{method:'POST',body:JSON.stringify(b)});
+let sent;globalThis.fetch=async (url,options)=>{sent=JSON.parse(options.body);return {ok:true,json:async()=>({candidates:[{content:{parts:[{text:JSON.stringify({status:'unclear',heard:'invented',good:'perfect',improve:'Không nghe rõ giọng nói.',practice:'invented'})}]}}]})}};
+assert.equal((await pronunciation(req({audio,mimeType:'audio/wav',reference:'Hello'}))).status,400);
+assert.equal((await pronunciation(req({audio:'not audio',mimeType:'audio/wav',reference:'Hello',consent:true}))).status,400);
+const r=await pronunciation(req({audio,mimeType:'audio/wav',reference:'Hello',consent:true,language:'vi'}));assert.equal(r.status,200);const body=await r.json();assert.equal(body.source,'audio');assert.equal(body.good,'');assert.equal(body.heard,'');assert.equal(sent.contents[0].parts[1].inlineData.data,audio);
+console.log('PASS audio: consent and WAV validation, actual inline audio sent, unclear result cannot praise or invent transcript. Mocked service only.');
