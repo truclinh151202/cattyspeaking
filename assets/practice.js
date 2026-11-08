@@ -59,7 +59,7 @@ A.chk=async function(d){
  if(fb[k]?.text===raw){toast(L('Bấm thử lại để bắt đầu một lần mới.','Start a new attempt with Try again.','請按再試一次開始新的嘗試。'));return;}
  const id=(revision[k]||0)+1;revision[k]=id;const lesson=LID,level=supportLevel(k),extra=!!usedHelp[k]||!!beforeHelp[k];pending[k]=true;S.tries[k]=(S.tries[k]||0)+1;msgs[k]='';render();
  let f=localFeedback(raw,c);
- if(AI){try{const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),16000);let j;
+ if(AI){try{const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),28000);let j;
   try{const r=await fetch('/api/feedback',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({text:raw,question:c.q,goal:c.goal,sample:c.tk.sample,price:!!c.tk.price,requirements:c.tk.req?.map(x=>x.vi)||[`${c.tk.qty} ${c.tk.n}`,c.tk.price?'ask the price':''].filter(Boolean),language:S.lang,context:TITLE}),signal:ctl.signal});j=await r.json();if(!r.ok)throw new Error(j.error||'ai_upstream');}finally{clearTimeout(timer)}
   if(!['done','part','retry','clarify'].includes(j.label)||!Array.isArray(j.criteria)||!Array.isArray(j.variants))throw 0;
   f={...j,status:j.label,verified:j.label!=='clarify',source:'ai',text:raw};
@@ -69,7 +69,11 @@ A.chk=async function(d){
 };
 A.newTry=d=>{revision[d.k]=(revision[d.k]||0)+1;delete pending[d.k];delete fb[d.k];delete usedHelp[d.k];delete beforeHelp[d.k];TX[d.k]='';msgs[d.k]='';render();};
 A.practiceHint=d=>{usedHelp[d.k]=true;render();};
-A.variantShow=d=>{const f=fb[d.k];if(!f)return;if(!f.variants?.length){msgs[d.k]=L('Chưa có ba mẫu hợp lệ. Hãy thử lại khi AI sẵn sàng.','No validated variants yet. Retry when AI is available.','尚無有效範例。請在 AI 可用時再試。');render();return;}f.showVariants=!f.showVariants;render();};
+A.variantShow=async d=>{const k=d.k,f=fb[k];if(!f||pending[k])return;if(f.variants?.length){f.showVariants=!f.showVariants;render();return;}
+ const c=currentTask(k),lesson=LID,raw=f.text;pending[k]=true;msgs[k]=L('Đang tạo ba cách diễn đạt…','Generating three expressions…','正在產生三種說法…');render();
+ try{const r=await fetch('/api/expressions',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({text:raw,question:c.q,goal:c.goal,context:TITLE,language:S.lang}),signal:AbortSignal.timeout(28000)});const j=await r.json();if(!r.ok)throw new Error(j.error);if(!Array.isArray(j.variants)||j.variants.length!==3)throw new Error('expressions_invalid_response');if(lesson===LID&&fb[k]===f&&TX[k]?.trim()===raw){f.variants=j.variants;f.showVariants=true;msgs[k]='';}}
+ catch(e){if(lesson===LID&&fb[k]===f)msgs[k]=aiErrorMessage(e);}finally{delete pending[k];render();}
+};
 A.support=d=>{const a=adaptive();a.level=Math.max(0,Math.min(3,a.level+Number(d.n)));a.streak=0;a.offer=false;A.newTry({k:'e1'});save();};
 const originalGate=gate;
 gate=function(){return STEPS[step]==='E'?!!S.tries.e1:originalGate();};
@@ -106,7 +110,7 @@ A.conversationSend=async()=>{
  try{
   if(c.sample){const stage=c.shop.stage;c.shop=shopTurn(c.shop,raw);c.history.push({role:'learner',text:raw},{role:'partner',text:c.shop.reply,ipa:c.shop.ipa});c.last={variants:shopVariants(raw,stage,c.shop)};}
   else{
-   const history=[...c.history,{role:'learner',text:raw}],ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),16000);let j;
+   const history=[...c.history,{role:'learner',text:raw}],ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),28000);let j;
    try{const r=await fetch('/api/conversation',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({scenario:TITLE,facts:T.map(t=>t[1]),goals:practiceGoals(),history,language:S.lang}),signal:ctl.signal});j=await r.json();if(!r.ok)throw new Error(j.error||'ai_upstream');if(!j.reply||typeof j.complete!=='boolean')throw 0;}finally{clearTimeout(timer)}
    c.history.push({role:'learner',text:raw},{role:'partner',text:j.reply,ipa:j.ipa,translation:j.translation});c.last=j;
   }
@@ -155,4 +159,4 @@ const stopCapture=()=>{if(mr&&mr.state==='recording')mr.stop();stopASR()};const 
 const baseDelete=A.del;A.del=()=>{baseDelete();S.adaptive||={};S.strandTime||={};S.practiceLog||=[];S.fluencyLog||=[];render()};
 render();
 
-function aiErrorMessage(e){const c=e?.message;const messages={ai_rate_limit:['AI đã chạm giới hạn sử dụng. Hãy thử lại sau.','AI usage limit reached. Try again later.','AI 使用量已達上限，請稍後再試。'],ai_timeout:['AI phản hồi quá chậm. Hãy thử lại.','AI timed out. Please retry.','AI 回應逾時，請重試。'],ai_auth:['Cấu hình khóa AI bị từ chối. Cần kiểm tra máy chủ.','AI key was rejected. Server configuration needs checking.','AI 金鑰遭拒，需檢查伺服器設定。'],ai_model_unavailable:['Mô hình AI đã cấu hình không khả dụng.','Configured AI model is unavailable.','設定的 AI 模型無法使用。'],ai_busy:['Dịch vụ AI đang bận. Hãy thử lại sau.','AI service is busy. Try again later.','AI 服務忙碌中，請稍後再試。']};return messages[c]?L(...messages[c]):L('Chưa nhận được đánh giá AI hợp lệ. Hãy thử lại. Đây không phải kết luận câu trả lời sai.','No valid AI assessment received. Retry; this does not mean your answer is wrong.','尚未收到有效的 AI 評估。請重試，這不代表答案錯誤。');}
+function aiErrorMessage(e){const c=e?.name==='AbortError'||e?.name==='TimeoutError'?'ai_timeout':e?.message;const messages={ai_rate_limit:['AI đã chạm giới hạn sử dụng. Hãy thử lại sau.','AI usage limit reached. Try again later.','AI 使用量已達上限，請稍後再試。'],ai_timeout:['AI phản hồi quá chậm. Hãy thử lại.','AI timed out. Please retry.','AI 回應逾時，請重試。'],ai_auth:['Cấu hình khóa AI bị từ chối. Cần kiểm tra máy chủ.','AI key was rejected. Server configuration needs checking.','AI 金鑰遭拒，需檢查伺服器設定。'],ai_model_unavailable:['Mô hình AI đã cấu hình không khả dụng.','Configured AI model is unavailable.','設定的 AI 模型無法使用。'],ai_busy:['Dịch vụ AI đang bận. Hãy thử lại sau.','AI service is busy. Try again later.','AI 服務忙碌中，請稍後再試。']};return messages[c]?L(...messages[c]):L('Chưa nhận được đánh giá AI hợp lệ. Hãy thử lại. Đây không phải kết luận câu trả lời sai.','No valid AI assessment received. Retry; this does not mean your answer is wrong.','尚未收到有效的 AI 評估。請重試，這不代表答案錯誤。');}
