@@ -8,7 +8,7 @@ export default async req=>{
  let b;try{b=await req.json();if(!b||typeof b!=='object'||Array.isArray(b))throw 0}catch{return Response.json({error:'bad_json'},{status:400})}
  const answer=text(b.text,500);if(!answer)return Response.json({error:'empty'},{status:400});
  const input={learnerLanguage:language(b),text:answer,question:text(b.question,250),goal:text(b.goal,300),sample:text(b.sample,250),must_ask_price:!!b.price,requirements:Array.isArray(b.requirements)?b.requirements.slice(0,4).map(x=>text(x,120)):[],context:text(b.context,500)};
- try{const o=await generate(SYS,input);if(!['done','part','retry','clarify'].includes(o.label)||!Array.isArray(o.criteria)||!o.criteria.length||o.criteria.length>6)throw 0;
+ try{const o=await generate(SYS,input,{retryBusy:true,timeoutMs:12000});if(!['done','part','retry','clarify'].includes(o.label)||!Array.isArray(o.criteria)||!o.criteria.length||o.criteria.length>6)throw 0;
  const criteria=o.criteria.map(x=>{if(typeof x.met!=='boolean'||!text(x.meaning,160))throw 0;return {meaning:text(x.meaning,160),met:x.met}});
  // A contradictory completion response is not accepted as complete.
  if(o.label==='done'&&criteria.some(x=>!x.met))throw 0;
