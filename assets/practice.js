@@ -57,14 +57,14 @@ function recordResult(k,c,raw,f,level,extra){
 }
 A.chk=async function(d){
  const k=d.k,c=currentTask(k),raw=(TX[k]||'').trim();if(pending[k])return;if(!raw){fb[k]={empty:true};render();return;}
- if(fb[k]?.text===raw){toast(L('Bấm thử lại để bắt đầu một lần mới.','Start a new attempt with Try again.','請按再試一次開始新的嘗試。'));return;}
+ if(fb[k]?.text===raw&&!fb[k].serviceFailed){toast(L('Bấm thử lại để bắt đầu một lần mới.','Start a new attempt with Try again.','請按再試一次開始新的嘗試。'));return;}
  const id=(revision[k]||0)+1;revision[k]=id;const lesson=LID,level=supportLevel(k),extra=!!usedHelp[k]||!!beforeHelp[k];pending[k]=true;S.tries[k]=(S.tries[k]||0)+1;msgs[k]='';render();
  let f=localFeedback(raw,c);
  if(AI){try{const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),28000);let j;
   try{const r=await fetch('/api/feedback',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({text:raw,question:c.q,goal:c.goal,sample:c.tk.sample,price:!!c.tk.price,requirements:c.tk.req?.map(x=>x.vi)||[`${c.tk.qty} ${c.tk.n}`,c.tk.price?'ask the price':''].filter(Boolean),language:S.lang,context:TITLE}),signal:ctl.signal});j=await r.json();if(!r.ok)throw new Error(j.error||'ai_upstream');}finally{clearTimeout(timer)}
   if(!['done','part','retry','clarify'].includes(j.label)||!Array.isArray(j.criteria)||!Array.isArray(j.variants))throw 0;
   f={...j,status:j.label,verified:j.label!=='clarify',source:'ai',text:raw};
- }catch(e){msgs[k]=aiErrorMessage(e);}}
+ }catch(e){f={...f,serviceFailed:true};msgs[k]=aiErrorMessage(e);}}
  if(lesson!==LID||revision[k]!==id||TX[k]?.trim()!==raw){if(revision[k]===id)delete pending[k];render();return;}
  delete pending[k];fb[k]=f;recordResult(k,c,raw,f,level,extra);render();
 };
